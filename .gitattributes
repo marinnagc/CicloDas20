@@ -1,0 +1,28 @@
+* text=auto
+
+# Unity files
+*.cs text diff=csharp
+*.cginc text
+*.shader text
+
+# Unity YAML
+*.mat text
+*.anim text
+*.unity text
+*.prefab text
+*.physicMaterial text
+*.physicsMaterial2D text
+*.asset text
+*.meta text
+*.controller text
+
+# Unity binary files
+*.cubemap binary
+*.unitypackage binary
+*.png binary
+*.jpg binary
+*.mp3 binary
+*.wav binary
+*.ogg binary
+*.fbx binary
+*.obj binary
