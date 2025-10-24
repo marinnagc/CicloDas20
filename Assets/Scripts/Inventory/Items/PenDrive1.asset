@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 274da145b7777374bac0524e3a7536b2, type: 3}
+  m_Name: PenDrive1
+  m_EditorClassIdentifier: 
+  name: PenDrive1
+  icon: {fileID: 21300000, guid: 153270bb71e95184eb7a8b3783a1bfea, type: 3}
+  isDefaultItem: 0
+  image: {fileID: 0}
