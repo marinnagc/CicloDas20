@@ -5,17 +5,15 @@ using UnityEngine.UI;
 public class BulletinBoard : MonoBehaviour, IInteractable
 {
     [TextArea(3, 12)]
-    public string turnos =
-@"Seg: 08–16 Ana | 16–00 Marcelo
-Ter: 08–16 Júlia | 16–00 Roberto
-Qua: 08–16 Pedro | 16–00 Carla
-Obs: Troca de turno às 19:45.";
-
-    [TextArea(3, 12)]
     public string avisos =
-@"Impressoras Setor B com pouca tinta.
-Câmeras ala Leste em manutenção 19:40–20:00.
-Perdido: cartão magnético prata #27.";
+@"Comunicado interno nº 16/20:
+Todos os pacientes devem comparecer à enfermaria para medicação às 16h.
+
+Atenção: horários são fixos e devem ser respeitados para evitar colapsos de rotina.
+
+Assinado,
+Dr. Maurício — Supervisor Clínico
+";
 
     public BoardPanelController panelPrefab;   // arraste o prefab
     public Canvas uiCanvas;                    // arraste o Canvas (ou deixe vazio)
@@ -28,7 +26,7 @@ Perdido: cartão magnético prata #27.";
         if (uiCanvas == null) uiCanvas = EnsureCanvas();
         var panel = Instantiate(panelPrefab, uiCanvas.transform);
         Time.timeScale = 0f;     // pausar enquanto lê (opcional)
-        panel.Init(turnos, avisos);
+        panel.Init(avisos);
     }
 
     // Liga/desliga a borda branca quando o player entra/sai

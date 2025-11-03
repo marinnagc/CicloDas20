@@ -54,8 +54,7 @@ public class BulletinTilemap : MonoBehaviour
             var panel = Instantiate(panelPrefab, uiCanvas.transform);
             Time.timeScale = 0f;
             panel.Init(
-                "Seg: 08–16 Ana | 16–00 Marcelo\nTroca às 19:45.",
-                "Câmeras ala Leste: manutenção 19:40–20:00."
+                "Comunicado interno nº 16/20:\r\nTodos os pacientes devem comparecer à enfermaria para medicação às 16h.\r\n\r\nAtenção: horários são fixos e devem ser respeitados para evitar colapsos de rotina.\r\n\r\nAssinado,\r\nDr. Maurício — Supervisor Clínico\r\n"
             );
         }
     }
