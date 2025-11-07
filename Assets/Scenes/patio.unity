@@ -952,7 +952,7 @@ GameObject:
   - component: {fileID: 466413030}
   - component: {fileID: 466413029}
   m_Layer: 0
-  m_Name: Door_Entrada_biblioteca
+  m_Name: Door_Entrada_entrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -970,7 +970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4dd6d9fd918b9640862d9ed0d118a0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneToLoad: biblioteca
+  sceneToLoad: entrada
 --- !u!61 &466413030
 BoxCollider2D:
   m_ObjectHideFlags: 0
