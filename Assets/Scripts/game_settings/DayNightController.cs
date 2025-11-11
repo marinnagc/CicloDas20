@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// Day/night controller com mapeamento de horas reais (ex: 06:00 -> 22:00)
@@ -18,7 +19,7 @@ public class DayNightController : MonoBehaviour
 
     [Header("References")]
     public Light directionalLight;
-    public Image overlayImage;
+    public Light2D globalLight;
     public Camera mainCamera;
 
     [Header("Visuals")]
@@ -71,9 +72,9 @@ public class DayNightController : MonoBehaviour
             float alpha = (overlayAlphaCurve != null && overlayAlphaCurve.length > 0) ? overlayAlphaCurve.Evaluate(normalizedTime) : 0.25f;
             baseSky.a = alpha;
 
-            if (overlayImage != null)
+            if (globalLight != null)
             {
-                overlayImage.color = baseSky;
+                globalLight.color = baseSky;
             }
 
             if (mainCamera != null)
