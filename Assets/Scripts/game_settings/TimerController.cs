@@ -18,12 +18,15 @@ public class TimerController : MonoBehaviour
     private float horaAtual;
     private bool tempoAcabou = false;
 
+    public static TimerController Instance;
+
     void Start()
     {
         duracaoEmSegundos = duracaoEmMinutos * 60f;
         horasTotais = horaFinal - horaInicial;
         horaAtual = horaInicial;
 
+        Instance = this;
         AtualizarUI();
     }
 

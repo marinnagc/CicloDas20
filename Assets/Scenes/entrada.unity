@@ -2560,11 +2560,12 @@ GameObject:
   - component: {fileID: 295407410}
   - component: {fileID: 295407409}
   - component: {fileID: 295407408}
-  - component: {fileID: 295407407}
   - component: {fileID: 295407406}
   - component: {fileID: 295407405}
   - component: {fileID: 295407404}
-  - component: {fileID: 295407403}
+  - component: {fileID: 295407413}
+  - component: {fileID: 295407414}
+  - component: {fileID: 295407415}
   m_Layer: 0
   m_Name: Security
   m_TagString: Player
@@ -2572,20 +2573,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &295407403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 295407402}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38b864f02b2539045a18b4e8b650b11f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 1
-  target: {fileID: 1787963275}
 --- !u!114 &295407404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2669,52 +2656,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 0.9
---- !u!61 &295407407
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 295407402}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.05, y: 0.07}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0}
-    oldSize: {x: 4, y: 4}
-    newSize: {x: 4, y: 4}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.84, y: 0.26}
-  m_EdgeRadius: 0
 --- !u!50 &295407408
 Rigidbody2D:
   serializedVersion: 5
@@ -2834,6 +2775,95 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &295407413
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 295407402}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.07, y: 0.22}
+  m_Radius: 0.24
+--- !u!114 &295407414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 295407402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b864f02b2539045a18b4e8b650b11f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1787963275}
+  patrolSpeed: 2
+  patrolRadius: 10
+  waitTimeAtPoint: 2
+  nextWaypointDistance: 0.5
+  chaseSpeed: 4
+  visionRange: 8
+  visionAngle: 90
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  horaInicioPatrulha: 6
+  horaFimPatrulha: 20
+  horaInicioPerseguicao: 20
+  horaFimPerseguicao: 22
+--- !u!114 &295407415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 295407402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 257cee6bf859a6b4fa5259d9330adf3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1787963275}
+  patrolSpeed: 2
+  patrolRadius: 10
+  waitTimeAtPoint: 2
+  chaseSpeed: 4
+  visionRange: 8
+  visionAngle: 90
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  horaInicioPatrulha: 6
+  horaFimPatrulha: 20
+  horaInicioPerseguicao: 20
+  horaFimPerseguicao: 22
 --- !u!1 &307611560
 GameObject:
   m_ObjectHideFlags: 0
@@ -3727,7 +3757,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1
   data:
-    dataString: UEsDBBQAAAgIAACwn+sNdxbRbgIAACQFAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFlVE1z2jAQ/SuMziUjA4HSWwuE9JCECe3k4ouQ1liDLHn0ESAZ/nslWcYOPSHe27f7drXyJ+LS1ECt0mvN2ZNigH4MUDijb4OOfIQT2Su55R/QxrxxZssQRGLMK7FceTwLMqMqsJrTn3IvQjD2oJO8ULpasT0slLHGwwURBjyllQ1q6aHPATr5n+E8SM7+NJqF04c/zfHg4o8UpAXdC80md3g6nWXjcZIM7/EdHuPZ/SRL0kbpJBWkqoGFNroE2TzpsvsYJn2DKSLoqRKCm+QO2XMdu9/WJWgI7TNOfLPRUQgvge9LG4z3tS9FYcCmSWhyXnLtZ9YkRb9UM8iKmENj650IF8pMJ9FRk/PpP3qYRbrQqnpsy2Y4lLAlp4dXcqbE2N6g+/Dyq28nj0QcyE7AWwnyWa21cpJ50moXpM7AaNn9vXa2KIEeOryxegO6upt2e6/trYYeLrH500Lwaheou0kDbIWK047LANrfy29vOK6KSSk8Glz8NfCH7Ps7lYgHro31VOpSBns75XQIRas4s9CNswulJUQ4ma5BEmHPG5/G3t7gDdcre8M8kPB6UvHEtY/iRhLhLh7jG2qjjtfLMqU6PoEpX5wVXEJnOhDPfk4LJWWzYP2ZtLKt0wWhPdnecfZ1tdAUszHbETzHI0p3hA6nGRnNvk9GM8JGOKMZirvHpe+TiE1jNI3H35rskku/Z+1HZbDWpI7LzjQ5rvlHpXoj57JQW6oB5EuT4WoctC/i3yRbMe4HtAVruYz3jT5zJBQ9AMuvifLY6epkNcm7LDmq+buyAcnRIn5FchTg6y5vNLxzOIbibbILuvwDUEsDBBQAAAgIAACwn+vzOTX8bQAAAHgAAAAJACQAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0Bq1YqSy0qzszPU7JSMNEz0jM011FQSi9KLMgoBooYgjilmSkgdrSSmUGKcUpSooGlgVFyclJisq6ZYaKRuYWJkXliipGBYbKhUixQfUllQapfYm4qRE9AYklGWmZeSmZeup57UWaKO8hopdhaAFBLAQItABQAAAgIAACwn+sNdxbRbgIAACQFAAALACQAAAAAAAAAAAAAAAAAAABncmFwaDAuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAVBLAQItABQAAAgIAACwn+vzOTX8bQAAAHgAAAAJACQAAAAAAAAAAAAAALsCAABtZXRhLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwUGAAAAAAIAAgC4AAAAcwMAAAAA
+    dataString: UEsDBBQAAAgIAACwn+sTnxYNaQIAAB8FAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQF1VE1z2jAQ/SuMziVjuwRKb61DSA8JTEgnF1+EtMYaZMkjyeEjw3/vSraxS6cnxNt9q7dvV/4kQtkKmNNmaQR/1hzI9xHxZ/Jl1Aef4Eh3Wm3EGbqcd8Fd4ZNoyHmlTmjEY0+zugRnBPuhdtInRwjWSuTalAu+g1RbZxHOqbSAIaOdZyuEPkfkiD/juaec8JTM/OmMp3k0uuCRgXJgBqnx5C6aTmfxfdJSxvdxS2kYtWKSlhVwL78nxvM2fx6yFPbVJng601IK24oi7lSFpjdVAQZ811xQ7DEIie6Se0QKELvCeclD+irPLbjWA0NPD8KgW01d8lM3FpbU7hthH1TW/qbpJIhqaj7/Ex7HIZwbXT5118aRv8IVgu1f6YlR6wYWD+GHXnoc7DlQuadbCe8FqBe9NLpWHIPO1J5aW0ge+r/XztIC2L7HG6k3YF31fncT7ebpe7iE5o+pFOU2ODlpgI3UwfCwBmBwNL9QcFgS25ZA1Kv4beGN7obb1AYehbEOQ22Xysvb6tr4VLIInvluapdqo8AMK1SgqHSnNdZxtyO8if2f9Uj9w2lvb2Pde7ihBLjPj6Kb0FofrtOyhT48gy1WtZNCQW+1D7ygUalWqtmwYUsdbVObnLIBbVcL/vdukWnEv/ItjeZRwtiWsvE0psns2ySZUZ5EMYtJWD6hsE8q143Q1h4cm+qLK1y07nsyWhpahW3nhh6W4lxq22cKlesNMwBq1VS4CgeDl+C75Asu0KANOCdUGDj5zIjUbA88uxbKQqeLozM066tkpBIf2nkkI2n4gGTEw9dlXhv4EHDwl3fFLuTyB1BLAwQUAAAICAAAsJ/r8zk1/G0AAAB4AAAACQAkAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAatWKkstKs7Mz1OyUjDRM9IzNNdRUEovSizIKAaKGII4pZkpIHa0kplBinFKUqKBpYFRcnJSYrKumWGikbmFiZF5YoqRgWGyoVIsUH1JZUGqX2JuKkRPQGJJRlpmXkpmXrqee1FmijvIaKXYWgBQSwECLQAUAAAICAAAsJ/rE58WDWkCAAAfBQAACwAkAAAAAAAAAAAAAAAAAAAAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwECLQAUAAAICAAAsJ/r8zk1/G0AAAB4AAAACQAkAAAAAAAAAAAAAAC2AgAAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsFBgAAAAACAAIAuAAAAG4DAAAAAA==
     upgradeData: 
     file_cachedStartup: {fileID: 0}
     data_cachedStartup: 
