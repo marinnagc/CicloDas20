@@ -5,29 +5,29 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
 {
     [Header("Referências")]
     [SerializeField] private Transform player;
+    [SerializeField] private Transform[] waypoints; // Array de coordenadas para patrulha
 
     [Header("Configurações de Patrulha")]
     [SerializeField] private float patrolSpeed = 2f;
-    [SerializeField] private float patrolRadius = 10f; // Raio para gerar pontos aleatórios
     [SerializeField] private float waitTimeAtPoint = 2f;
 
     [Header("Configurações de Perseguição")]
     [SerializeField] private float chaseSpeed = 4f;
-    [SerializeField] private float visionRange = 8f; // Distância que o guarda enxerga
-    [SerializeField] private float visionAngle = 90f; // Ângulo de visão (em graus)
-    [SerializeField] private LayerMask obstacleLayer; // Camada de obstáculos (paredes)
+    [SerializeField] private float visionRange = 8f;
+    [SerializeField] private float visionAngle = 90f;
+    [SerializeField] private LayerMask obstacleLayer;
 
     [Header("Horários")]
-    [SerializeField] private int horaInicioPatrulha = 6;
-    [SerializeField] private int horaFimPatrulha = 20;
-    [SerializeField] private int horaInicioPerseguicao = 20;
-    [SerializeField] private int horaFimPerseguicao = 22;
+    [SerializeField] private int horaFicarParado = 6; // Hora que fica parado
+    [SerializeField] private int horaIniciarRonda = 20; // Hora que começa a ronda
+    [SerializeField] private int horaFimRonda = 22; // Hora que termina
 
     // Variáveis privadas
     private NavMeshAgent agent;
     private float waitTimer = 0f;
     private bool isChasing = false;
-    private Vector3 patrolCenter;
+    private int currentWaypointIndex = 0;
+    private Vector3 posicaoInicial;
 
     void Awake()
     {
@@ -35,14 +35,44 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
         agent.updateRotation = false;
         agent.updateUpAxis = false;
 
-        // Guarda a posição inicial como centro da patrulha
-        patrolCenter = transform.position;
+        // IMPORTANTE para 2D: desabilita física 3D
+        agent.updatePosition = true; // Deixa o NavMesh controlar a posição
+
+        // Remove ou desabilita Rigidbody2D se existir
+        Rigidbody2D rb2d = GetComponent<Rigidbody2D>();
+        if (rb2d != null)
+        {
+            // Opção 1: Tornar Kinematic
+            rb2d.bodyType = RigidbodyType2D.Kinematic;
+            rb2d.simulated = false; // Desabilita completamente a física 2D
+
+            // Opção 2: Remover (descomente se preferir)
+            // Destroy(rb2d);
+        }
+
+        // Guarda a posição inicial
+        posicaoInicial = transform.position;
     }
 
     void Start()
     {
-        // Começa patrulhando
-        GoToRandomPatrolPoint();
+        // Começa parado na posição inicial
+        agent.speed = 0;
+        agent.isStopped = true;
+
+        // Debug
+        Debug.Log($"[Guard] Iniciado. Waypoints: {(waypoints != null ? waypoints.Length : 0)}");
+
+        // Verifica se o NavMesh foi gerado
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(transform.position, out hit, 1f, NavMesh.AllAreas))
+        {
+            Debug.Log("[Guard] NavMesh encontrado!");
+        }
+        else
+        {
+            Debug.LogError("[Guard] ERRO: NavMesh não encontrado! Certifique-se de fazer Bake no NavMeshSurface!");
+        }
     }
 
     void Update()
@@ -51,8 +81,13 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
 
         int horaAtual = TimerController.Instance.GetHoraInteira();
 
-        // Das 20h às 22h: modo perseguição se vir o player
-        if (horaAtual >= horaInicioPerseguicao && horaAtual < horaFimPerseguicao)
+        // Das 6h às 20h: FICA PARADO
+        if (horaAtual >= horaFicarParado && horaAtual < horaIniciarRonda)
+        {
+            StayIdle();
+        }
+        // Das 20h às 22h: faz ronda OU persegue se ver o player
+        else if (horaAtual >= horaIniciarRonda && horaAtual < horaFimRonda)
         {
             if (CanSeePlayer())
             {
@@ -60,37 +95,77 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
             }
             else if (isChasing)
             {
-                // Se estava perseguindo mas perdeu de vista, volta a patrulhar
+                // Perdeu de vista, volta à ronda
+                Debug.Log("[Guard] Perdeu o player de vista. Voltando para ronda.");
                 isChasing = false;
                 agent.speed = patrolSpeed;
-                GoToRandomPatrolPoint();
+                agent.isStopped = false;
+                GoToNextWaypoint();
             }
             else
             {
-                // Patrulha normal mesmo no período noturno se não vir o player
+                // Faz a ronda normal
                 PatrolBehavior();
             }
         }
-        // Das 6h às 20h: apenas patrulha
-        else if (horaAtual >= horaInicioPatrulha && horaAtual < horaFimPatrulha)
+        else
         {
-            if (isChasing)
-            {
-                isChasing = false;
-                agent.speed = patrolSpeed;
-            }
-            PatrolBehavior();
+            // Fora do horário de trabalho, fica parado
+            StayIdle();
         }
+
+        // Debug visual no console (comentar depois de testar)
+        /*
+        if (Time.frameCount % 60 == 0) // A cada 60 frames
+        {
+            Debug.Log($"[Guard] Hora: {horaAtual}h | Velocidade: {agent.velocity.magnitude:F2} | isStopped: {agent.isStopped} | Destino: {agent.destination}");
+        }
+        */
+    }
+
+    void LateUpdate()
+    {
+        // CRÍTICO para 2D: mantém Z sempre em 0
+        if (transform.position.z != 0)
+        {
+            Vector3 pos = transform.position;
+            pos.z = 0;
+            transform.position = pos;
+        }
+    }
+
+    void StayIdle()
+    {
+        // Para o agente completamente
+        if (!agent.isStopped)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
+        isChasing = false;
     }
 
     void PatrolBehavior()
     {
-        // Verifica se chegou no destino
+        if (waypoints == null || waypoints.Length == 0)
+        {
+            StayIdle();
+            return;
+        }
+
+        // Garante que o agente está ativo
+        if (agent.isStopped)
+        {
+            agent.isStopped = false;
+            GoToNextWaypoint();
+        }
+
+        // Verifica se chegou no waypoint
         if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
         {
             if (waitTimer <= 0f)
             {
-                GoToRandomPatrolPoint();
+                GoToNextWaypoint();
                 waitTimer = waitTimeAtPoint;
             }
             else
@@ -100,22 +175,33 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
         }
     }
 
-    void GoToRandomPatrolPoint()
+    void GoToNextWaypoint()
     {
-        Vector3 randomDirection = Random.insideUnitCircle * patrolRadius;
-        Vector3 randomPoint = patrolCenter + new Vector3(randomDirection.x, randomDirection.y, 0);
+        if (waypoints == null || waypoints.Length == 0) return;
 
+        // Vai para o próximo waypoint de forma aleatória
+        int randomIndex = Random.Range(0, waypoints.Length);
+        currentWaypointIndex = randomIndex;
+
+        agent.speed = patrolSpeed;
+
+        // Verifica se o waypoint está no NavMesh
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(randomPoint, out hit, patrolRadius, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(waypoints[currentWaypointIndex].position, out hit, 2f, NavMesh.AllAreas))
         {
-            agent.speed = patrolSpeed;
             agent.SetDestination(hit.position);
+            Debug.Log($"[Guard] Indo para waypoint {currentWaypointIndex}: {hit.position}");
+        }
+        else
+        {
+            Debug.LogWarning($"[Guard] Waypoint {currentWaypointIndex} não está no NavMesh!");
         }
     }
 
     void ChasePlayer()
     {
         isChasing = true;
+        agent.isStopped = false;
         agent.speed = chaseSpeed;
         agent.SetDestination(player.position);
     }
@@ -147,15 +233,15 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
         return true;
     }
 
-    // Método para visualizar o campo de visão no Editor (Debug)
+    // Método para visualizar o campo de visão no Editor
     void OnDrawGizmosSelected()
     {
         if (TimerController.Instance == null) return;
 
         int horaAtual = TimerController.Instance.GetHoraInteira();
 
-        // Só desenha o cone de visão no período de perseguição
-        if (horaAtual >= horaInicioPerseguicao && horaAtual < horaFimPerseguicao)
+        // Das 20h às 22h: mostra cone de visão
+        if (horaAtual >= horaIniciarRonda && horaAtual < horaFimRonda)
         {
             Gizmos.color = isChasing ? Color.red : Color.yellow;
 
@@ -169,12 +255,23 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
 
             Gizmos.DrawLine(transform.position, transform.position + leftBoundary);
             Gizmos.DrawLine(transform.position, transform.position + rightBoundary);
+
+            // Desenha os waypoints
+            if (waypoints != null && waypoints.Length > 0)
+            {
+                Gizmos.color = Color.cyan;
+                foreach (Transform waypoint in waypoints)
+                {
+                    if (waypoint != null)
+                        Gizmos.DrawWireSphere(waypoint.position, 0.3f);
+                }
+            }
         }
         else
         {
-            // Desenha o raio de patrulha
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(patrolCenter, patrolRadius);
+            // Das 6h às 20h: mostra que está parado
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, 0.5f);
         }
     }
 }

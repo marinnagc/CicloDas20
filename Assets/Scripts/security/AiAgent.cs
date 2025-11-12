@@ -1,60 +1,70 @@
 using UnityEngine;
-using Pathfinding;
 
-public class AiAgent : MonoBehaviour
+public class AiAgente : MonoBehaviour
 {
-    [Header("Refer�ncias")]
+    [Header("Referências")]
     [SerializeField] private Transform player;
 
-    [Header("Configura��es de Patrulha")]
-    [SerializeField] private float patrolSpeed = 2f;
-    [SerializeField] private float patrolRadius = 10f;
-    [SerializeField] private float waitTimeAtPoint = 2f;
-    [SerializeField] private float nextWaypointDistance = 0.5f; // Dist�ncia para considerar que chegou no waypoint
+    [Header("Limites de Movimento")]
+    [SerializeField] private float minX = -10f;
+    [SerializeField] private float maxX = 10f;
+    [SerializeField] private float fixedY = -49f; // Altura fixa do chão
 
-    [Header("Configura��es de Persegui��o")]
+    [Header("Configurações de Patrulha")]
+    [SerializeField] private float patrolSpeed = 2f;
+    [SerializeField] private float waitTimeAtPoint = 2f;
+
+    [Header("Configurações de Perseguição")]
     [SerializeField] private float chaseSpeed = 4f;
     [SerializeField] private float visionRange = 8f;
     [SerializeField] private float visionAngle = 90f;
     [SerializeField] private LayerMask obstacleLayer;
 
-    [Header("Hor�rios")]
-    [SerializeField] private int horaInicioPatrulha = 6;
-    [SerializeField] private int horaFimPatrulha = 20;
-    [SerializeField] private int horaInicioPerseguicao = 20;
-    [SerializeField] private int horaFimPerseguicao = 22;
+    [Header("Horários")]
+    [SerializeField] private int horaFicarParado = 6;
+    [SerializeField] private int horaIniciarRonda = 20;
+    [SerializeField] private int horaFimRonda = 22;
 
-    // Componentes A*
-    private AIPath path;
-    private Seeker seeker;
-
-    // Vari�veis privadas
+    // Variáveis privadas
+    private float targetX;
     private float waitTimer = 0f;
     private bool isChasing = false;
-    private Vector3 patrolCenter;
-    private Vector3 currentPatrolTarget;
+    private Rigidbody2D rb2d;
+    private Animator animator;
+    private float currentSpeed = 0f;
 
     void Awake()
     {
-        path = GetComponent<AIPath>();
-        if (path == null)
-            path = gameObject.AddComponent<AIPath>();
+        rb2d = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
 
-        seeker = GetComponent<Seeker>();
-        if (seeker == null)
-            seeker = gameObject.AddComponent<Seeker>();
+        if (rb2d == null)
+        {
+            rb2d = gameObject.AddComponent<Rigidbody2D>();
+        }
 
-        patrolCenter = transform.position;
-
-        // Configura��es do AIPath
-        path.maxSpeed = patrolSpeed;
-        path.slowdownDistance = 0.5f;
-        path.endReachedDistance = 0.3f;
+        rb2d.bodyType = RigidbodyType2D.Kinematic;
+        rb2d.gravityScale = 0;
     }
 
     void Start()
     {
-        GoToRandomPatrolPoint();
+        // Define Y fixo baseado na posição inicial se não configurado
+        if (fixedY == 0)
+        {
+            fixedY = transform.position.y;
+        }
+
+        // Define posição inicial no chão
+        Vector3 pos = transform.position;
+        pos.y = fixedY;
+        pos.z = 0;
+        transform.position = pos;
+
+        // Escolhe primeiro destino aleatório
+        ChooseNewTarget();
+
+        Debug.Log($"[SecurityGuard] Iniciado. Y fixo: {fixedY} | Limites X: {minX} a {maxX}");
     }
 
     void Update()
@@ -63,8 +73,13 @@ public class AiAgent : MonoBehaviour
 
         int horaAtual = TimerController.Instance.GetHoraInteira();
 
-        // Das 20h �s 22h: modo persegui��o se vir o player
-        if (horaAtual >= horaInicioPerseguicao && horaAtual < horaFimPerseguicao)
+        // Das 6h às 20h: PARADO
+        if (horaAtual >= horaFicarParado && horaAtual < horaIniciarRonda)
+        {
+            StayIdle();
+        }
+        // Das 20h às 22h: RONDA ou PERSEGUE
+        else if (horaAtual >= horaIniciarRonda && horaAtual < horaFimRonda)
         {
             if (CanSeePlayer())
             {
@@ -72,65 +87,128 @@ public class AiAgent : MonoBehaviour
             }
             else if (isChasing)
             {
+                // Perdeu o player, volta a patrulhar
                 isChasing = false;
-                path.maxSpeed = patrolSpeed;
-                GoToRandomPatrolPoint();
+                ChooseNewTarget();
             }
             else
             {
-                PatrolBehavior();
+                Patrol();
             }
         }
-        // Das 6h �s 20h: apenas patrulha
-        else if (horaAtual >= horaInicioPatrulha && horaAtual < horaFimPatrulha)
+        else
         {
-            if (isChasing)
-            {
-                isChasing = false;
-                path.maxSpeed = patrolSpeed;
-            }
-            PatrolBehavior();
+            StayIdle();
         }
+
+        // Atualiza animação
+        UpdateAnimator();
     }
 
-    void PatrolBehavior()
+    void LateUpdate()
     {
-        // Verifica se chegou no destino usando a dist�ncia
-        float distanceToTarget = Vector3.Distance(transform.position, currentPatrolTarget);
+        // Força posição no chão e dentro dos limites
+        Vector3 pos = transform.position;
+        pos.y = fixedY;
+        pos.z = 0;
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        transform.position = pos;
 
-        if (distanceToTarget < nextWaypointDistance)
+        // Mantém rotação em 0 (sempre em pé)
+        transform.rotation = Quaternion.identity;
+    }
+
+    void StayIdle()
+    {
+        currentSpeed = 0f;
+
+        // Congela completamente
+        if (rb2d != null)
+        {
+            rb2d.constraints = RigidbodyConstraints2D.FreezeAll;
+            rb2d.linearVelocity = Vector2.zero;
+        }
+
+        isChasing = false;
+    }
+
+    void Patrol()
+    {
+        // Descongela para permitir movimento
+        if (rb2d != null && rb2d.constraints == RigidbodyConstraints2D.FreezeAll)
+        {
+            rb2d.constraints = RigidbodyConstraints2D.FreezeRotation;
+            Debug.Log("[SecurityGuard] Descongelado para patrulha");
+        }
+
+        float distanceToTarget = Mathf.Abs(transform.position.x - targetX);
+
+        // Se chegou no destino
+        if (distanceToTarget < 0.3f)
         {
             if (waitTimer <= 0f)
             {
-                GoToRandomPatrolPoint();
+                ChooseNewTarget();
                 waitTimer = waitTimeAtPoint;
             }
             else
             {
                 waitTimer -= Time.deltaTime;
-                path.maxSpeed = 0f; // Para enquanto espera
+                currentSpeed = 0f;
+                return;
             }
         }
-        else
-        {
-            path.maxSpeed = patrolSpeed;
-        }
-    }
 
-    void GoToRandomPatrolPoint()
-    {
-        Vector2 randomDirection = Random.insideUnitCircle * patrolRadius;
-        currentPatrolTarget = patrolCenter + new Vector3(randomDirection.x, randomDirection.y, 0);
-
-        path.maxSpeed = patrolSpeed;
-        path.destination = currentPatrolTarget;
+        // Move em direção ao target
+        MoveTowardsTarget(targetX, patrolSpeed);
     }
 
     void ChasePlayer()
     {
         isChasing = true;
-        path.maxSpeed = chaseSpeed;
-        path.destination = player.position;
+
+        // Descongela para permitir movimento
+        if (rb2d != null && rb2d.constraints == RigidbodyConstraints2D.FreezeAll)
+        {
+            rb2d.constraints = RigidbodyConstraints2D.FreezeRotation;
+        }
+
+        // Move em direção ao player (só no eixo X)
+        MoveTowardsTarget(player.position.x, chaseSpeed);
+    }
+
+    void MoveTowardsTarget(float targetXPos, float speed)
+    {
+        Vector3 pos = transform.position;
+
+        // Calcula direção (esquerda ou direita)
+        float direction = Mathf.Sign(targetXPos - pos.x);
+
+        // Move
+        pos.x += direction * speed * Time.deltaTime;
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        pos.y = fixedY;
+        pos.z = 0;
+
+        transform.position = pos;
+        currentSpeed = speed;
+
+        // Vira o sprite para a direção do movimento (opcional)
+        if (direction > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1); // Olhando direita
+        }
+        else if (direction < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1); // Olhando esquerda
+        }
+    }
+
+    void ChooseNewTarget()
+    {
+        // Escolhe uma nova posição X aleatória
+        targetX = Random.Range(minX, maxX);
+        Debug.Log($"[SecurityGuard] Novo destino: X = {targetX:F2}");
     }
 
     bool CanSeePlayer()
@@ -140,18 +218,18 @@ public class AiAgent : MonoBehaviour
         Vector3 directionToPlayer = player.position - transform.position;
         float distanceToPlayer = directionToPlayer.magnitude;
 
-        // Verifica dist�ncia
+        // Verifica distância
         if (distanceToPlayer > visionRange)
             return false;
 
-        // Verifica �ngulo (assumindo que o sprite olha para cima/direita por padr�o)
-        Vector3 forward = transform.up;
+        // Verifica ângulo
+        Vector3 forward = transform.right; // Assuming sprite faces right by default
         float angle = Vector3.Angle(forward, directionToPlayer);
 
         if (angle > visionAngle / 2f)
             return false;
 
-        // Verifica obst�culos
+        // Verifica obstáculos
         RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, obstacleLayer);
 
         if (hit.collider != null && hit.collider.transform != player)
@@ -160,33 +238,90 @@ public class AiAgent : MonoBehaviour
         return true;
     }
 
-    // Visualiza��o no Editor
+    void UpdateAnimator()
+    {
+        if (animator == null) return;
+
+        // Atualiza parâmetros do animator
+        foreach (var param in animator.parameters)
+        {
+            if (param.name == "Speed" && param.type == AnimatorControllerParameterType.Float)
+            {
+                animator.SetFloat("Speed", currentSpeed);
+            }
+            else if (param.name == "IsMoving" && param.type == AnimatorControllerParameterType.Bool)
+            {
+                animator.SetBool("IsMoving", currentSpeed > 0.1f);
+            }
+            else if (param.name == "IsWalking" && param.type == AnimatorControllerParameterType.Bool)
+            {
+                animator.SetBool("IsWalking", currentSpeed > 0.1f);
+            }
+            else if (param.name == "Velocity" && param.type == AnimatorControllerParameterType.Float)
+            {
+                animator.SetFloat("Velocity", currentSpeed);
+            }
+        }
+    }
+
+    // Métodos públicos para a lanterna acessar
+    public float GetCurrentSpeed()
+    {
+        return currentSpeed;
+    }
+
+    public bool IsChasing()
+    {
+        return isChasing;
+    }
+
+    public float GetVisionRange()
+    {
+        return visionRange;
+    }
+
+    public float GetVisionAngle()
+    {
+        return visionAngle;
+    }
+
+    // Visualização no Editor
     void OnDrawGizmosSelected()
     {
         if (TimerController.Instance == null) return;
 
         int horaAtual = TimerController.Instance.GetHoraInteira();
+        float yPos = fixedY == 0 ? transform.position.y : fixedY;
 
-        if (horaAtual >= horaInicioPerseguicao && horaAtual < horaFimPerseguicao)
+        if (horaAtual >= horaIniciarRonda && horaAtual < horaFimRonda)
         {
+            // Cone de visão
             Gizmos.color = isChasing ? Color.red : Color.yellow;
             Gizmos.DrawWireSphere(transform.position, visionRange);
 
-            Vector3 forward = transform.up;
-            Vector3 leftBoundary = Quaternion.Euler(0, 0, visionAngle / 2f) * forward * visionRange;
-            Vector3 rightBoundary = Quaternion.Euler(0, 0, -visionAngle / 2f) * forward * visionRange;
+            // Limites de patrulha
+            Gizmos.color = Color.green;
+            Vector3 leftLimit = new Vector3(minX, yPos, 0);
+            Vector3 rightLimit = new Vector3(maxX, yPos, 0);
+            Gizmos.DrawLine(leftLimit + Vector3.up * 2, leftLimit - Vector3.up * 2);
+            Gizmos.DrawLine(rightLimit + Vector3.up * 2, rightLimit - Vector3.up * 2);
+            Gizmos.DrawLine(leftLimit, rightLimit);
 
-            Gizmos.DrawLine(transform.position, transform.position + leftBoundary);
-            Gizmos.DrawLine(transform.position, transform.position + rightBoundary);
+            // Destino atual
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(new Vector3(targetX, yPos, 0), 0.3f);
         }
         else
         {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(patrolCenter, patrolRadius);
-        }
+            // Parado
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, 0.5f);
 
-        // Mostra o destino atual
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(currentPatrolTarget, 0.3f);
+            // Limites
+            Gizmos.color = Color.cyan;
+            Vector3 leftLimit = new Vector3(minX, yPos, 0);
+            Vector3 rightLimit = new Vector3(maxX, yPos, 0);
+            Gizmos.DrawLine(leftLimit, rightLimit);
+        }
     }
 }
