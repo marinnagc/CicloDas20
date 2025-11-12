@@ -155,8 +155,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -177.39838, y: -4.9756}
-  m_SizeDelta: {x: 229.5609, y: 45.122}
+  m_AnchoredPosition: {x: -177.39838, y: -8.9698}
+  m_SizeDelta: {x: 229.5609, y: 37.1337}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &93289316
 MonoBehaviour:
@@ -543,8 +543,8 @@ RectTransform:
   m_Children:
   - {fileID: 1920045140}
   - {fileID: 2064729193}
-  - {fileID: 93289315}
   - {fileID: 849848667}
+  - {fileID: 93289315}
   - {fileID: 1986687989}
   - {fileID: 1498262997}
   m_Father: {fileID: 0}
@@ -568,7 +568,7 @@ GameObject:
   - component: {fileID: 849848668}
   - component: {fileID: 849848671}
   m_Layer: 5
-  m_Name: BtnInstrucoes
+  m_Name: BtnResolucao
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -590,8 +590,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -177.39838, y: -139.00815}
-  m_SizeDelta: {x: 229.5609, y: 53.187}
+  m_AnchoredPosition: {x: -177.39838, y: -137.67676}
+  m_SizeDelta: {x: 229.5609, y: 38.0979}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &849848668
 MonoBehaviour:
@@ -639,7 +639,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2119702818}
         m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
-        m_MethodName: Instrucoes
+        m_MethodName: Resolucao
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -945,7 +945,7 @@ GameObject:
   - component: {fileID: 1986687990}
   - component: {fileID: 1986687993}
   m_Layer: 5
-  m_Name: BtnResolucao
+  m_Name: BtnInstrucoes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -967,8 +967,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -172.86179, y: -73.37204}
-  m_SizeDelta: {x: 238.6341, y: 53.8985}
+  m_AnchoredPosition: {x: -172.86179, y: -72.92822}
+  m_SizeDelta: {x: 238.6341, y: 37.0341}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1986687990
 MonoBehaviour:
@@ -1016,7 +1016,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2119702818}
         m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
-        m_MethodName: Resolucao
+        m_MethodName: Instrucoes
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

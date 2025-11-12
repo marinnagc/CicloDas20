@@ -18,8 +18,14 @@ EditorBuildSettings:
     path: Assets/Scenes/patio.unity
     guid: 9b3cbf52c819f8d4f8c7d11a1ebbe649
   - enabled: 1
+    path: Assets/Scenes/MenuInicial.unity
+    guid: 5d5f8d776abf33246841c4338f3e217e
+  - enabled: 1
     path: Assets/Scenes/entrada.unity
     guid: 11de7be95de5af14c960253719387cf0
+  - enabled: 1
+    path: Assets/Scenes/Instrucoes.unity
+    guid: 2e0cc117d290e8a42bec5cca5862253d
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
