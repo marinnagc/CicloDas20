@@ -26,12 +26,18 @@ public class AiAgente : MonoBehaviour
     [SerializeField] private int horaFimRonda = 22;
 
     // Variáveis privadas
+    private enum State { Idle, Patrolling, Chasing, Returning }
+    private State state = State.Patrolling;
+
     private float targetX;
     private float waitTimer = 0f;
     private bool isChasing = false;
     private Rigidbody2D rb2d;
     private Animator animator;
     private float currentSpeed = 0f;
+    private float lastPatrolTargetX; // Salva o último destino de patrulha
+    private Vector3 startPosition;
+    private Vector3 returnTarget;
 
     void Awake()
     {
@@ -49,8 +55,12 @@ public class AiAgente : MonoBehaviour
 
     void Start()
     {
+        // Guarda posição inicial (usada para retornar)
+        startPosition = transform.position;
+        startPosition.z = 0f;
+
         // Define Y fixo baseado na posição inicial se não configurado
-        if (fixedY == 0)
+        if (Mathf.Approximately(fixedY, 0f))
         {
             fixedY = transform.position.y;
         }
@@ -76,29 +86,44 @@ public class AiAgente : MonoBehaviour
         // Das 6h às 20h: PARADO
         if (horaAtual >= horaFicarParado && horaAtual < horaIniciarRonda)
         {
-            StayIdle();
+            SetState(State.Idle);
         }
         // Das 20h às 22h: RONDA ou PERSEGUE
         else if (horaAtual >= horaIniciarRonda && horaAtual < horaFimRonda)
         {
             if (CanSeePlayer())
             {
-                ChasePlayer();
-            }
-            else if (isChasing)
-            {
-                // Perdeu o player, volta a patrulhar
-                isChasing = false;
-                ChooseNewTarget();
+                SetState(State.Chasing);
             }
             else
             {
-                Patrol();
+                if (state == State.Chasing)
+                {
+                    // Perdeu o player de vista - VOLTA PARA O ÚLTIMO DESTINO
+                    StartReturningToLastPatrol();
+                }
+                else if (state == State.Returning)
+                {
+                    // continua retornando
+                }
+                else
+                {
+                    SetState(State.Patrolling);
+                }
             }
         }
         else
         {
-            StayIdle();
+            SetState(State.Idle);
+        }
+
+        // Executa lógica do estado
+        switch (state)
+        {
+            case State.Idle: StayIdle(); break;
+            case State.Patrolling: Patrol(); break;
+            case State.Chasing: ChasePlayer(); break;
+            case State.Returning: ReturnUpdate(); break;
         }
 
         // Atualiza animação
@@ -107,15 +132,26 @@ public class AiAgente : MonoBehaviour
 
     void LateUpdate()
     {
-        // Força posição no chão e dentro dos limites
+        // IMPORTANTE: não forçar Y quando estiver perseguindo
         Vector3 pos = transform.position;
-        pos.y = fixedY;
-        pos.z = 0;
+
+        if (state != State.Chasing)
+        {
+            // quando NÃO está em chase, fixa Y e mantém X dentro dos limites
+            pos.y = fixedY;
+        }
+        // sempre mantém Z = 0 e limita X
+        pos.z = 0f;
         pos.x = Mathf.Clamp(pos.x, minX, maxX);
         transform.position = pos;
 
         // Mantém rotação em 0 (sempre em pé)
         transform.rotation = Quaternion.identity;
+    }
+
+    void SetState(State newState)
+    {
+        state = newState;
     }
 
     void StayIdle()
@@ -138,7 +174,6 @@ public class AiAgente : MonoBehaviour
         if (rb2d != null && rb2d.constraints == RigidbodyConstraints2D.FreezeAll)
         {
             rb2d.constraints = RigidbodyConstraints2D.FreezeRotation;
-            Debug.Log("[SecurityGuard] Descongelado para patrulha");
         }
 
         float distanceToTarget = Mathf.Abs(transform.position.x - targetX);
@@ -159,8 +194,9 @@ public class AiAgente : MonoBehaviour
             }
         }
 
-        // Move em direção ao target
-        MoveTowardsTarget(targetX, patrolSpeed);
+        // Move em direção ao target (apenas X enquanto patrulha; Y mantido)
+        Vector3 patrolTarget = new Vector3(targetX, fixedY, 0f);
+        MoveTowardsTarget(patrolTarget, patrolSpeed);
     }
 
     void ChasePlayer()
@@ -173,41 +209,62 @@ public class AiAgente : MonoBehaviour
             rb2d.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
-        // Move em direção ao player (só no eixo X)
-        MoveTowardsTarget(player.position.x, chaseSpeed);
+        // Perseguir usando X e Y do player (Y deixa de ser fixo)
+        Vector3 playerTarget = new Vector3(player.position.x, player.position.y, 0f);
+        MoveTowardsTarget(playerTarget, chaseSpeed);
     }
 
-    void MoveTowardsTarget(float targetXPos, float speed)
+    void StartReturningToLastPatrol()
+    {
+        isChasing = false;
+        SetState(State.Returning);
+        // volta para último destino de patrulha salvo (X) mantendo Y fixa
+        returnTarget = new Vector3(lastPatrolTargetX, fixedY, 0f);
+    }
+
+    void ReturnUpdate()
+    {
+        MoveTowardsTarget(returnTarget, patrolSpeed);
+
+        // Se chegou, reinicia patrulha
+        float dist = Vector2.Distance(new Vector2(transform.position.x, transform.position.y),
+                                      new Vector2(returnTarget.x, returnTarget.y));
+        if (dist <= 0.35f)
+        {
+            ChooseNewTarget();
+            SetState(State.Patrolling);
+            Debug.Log("[SecurityGuard] Chegou ao destino de retorno — reiniciando patrulha.");
+        }
+    }
+
+    // agora MoveTowardsTarget aceita Vector3 target (X e Y)
+    void MoveTowardsTarget(Vector3 targetPos, float speed)
     {
         Vector3 pos = transform.position;
+        Vector3 next = Vector3.MoveTowards(pos, targetPos, speed * Time.deltaTime);
 
-        // Calcula direção (esquerda ou direita)
-        float direction = Mathf.Sign(targetXPos - pos.x);
+        // Aplicar limites X
+        next.x = Mathf.Clamp(next.x, minX, maxX);
 
-        // Move
-        pos.x += direction * speed * Time.deltaTime;
-        pos.x = Mathf.Clamp(pos.x, minX, maxX);
-        pos.y = fixedY;
-        pos.z = 0;
+        // Z sempre 0
+        next.z = 0f;
 
-        transform.position = pos;
-        currentSpeed = speed;
+        transform.position = next;
 
-        // Vira o sprite para a direção do movimento (opcional)
-        if (direction > 0)
-        {
-            transform.localScale = new Vector3(1, 1, 1); // Olhando direita
-        }
-        else if (direction < 0)
-        {
-            transform.localScale = new Vector3(-1, 1, 1); // Olhando esquerda
-        }
+        // calcula currentSpeed como distância percorrida / deltaTime
+        currentSpeed = (Vector3.Distance(next, pos) / (Mathf.Epsilon + Time.deltaTime));
+
+        // Vira o sprite segundo movimento horizontal (opcional)
+        float dx = next.x - pos.x;
+        if (dx > 0.001f) transform.localScale = new Vector3(1, 1, 1);
+        else if (dx < -0.001f) transform.localScale = new Vector3(-1, 1, 1);
     }
 
     void ChooseNewTarget()
     {
         // Escolhe uma nova posição X aleatória
         targetX = Random.Range(minX, maxX);
+        lastPatrolTargetX = targetX; // Salva para caso precise voltar depois
         Debug.Log($"[SecurityGuard] Novo destino: X = {targetX:F2}");
     }
 
@@ -229,9 +286,8 @@ public class AiAgente : MonoBehaviour
         if (angle > visionAngle / 2f)
             return false;
 
-        // Verifica obstáculos
+        // Verifica obstáculos (mantive seu uso original de obstacleLayer)
         RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, obstacleLayer);
-
         if (hit.collider != null && hit.collider.transform != player)
             return false;
 
@@ -265,25 +321,10 @@ public class AiAgente : MonoBehaviour
     }
 
     // Métodos públicos para a lanterna acessar
-    public float GetCurrentSpeed()
-    {
-        return currentSpeed;
-    }
-
-    public bool IsChasing()
-    {
-        return isChasing;
-    }
-
-    public float GetVisionRange()
-    {
-        return visionRange;
-    }
-
-    public float GetVisionAngle()
-    {
-        return visionAngle;
-    }
+    public float GetCurrentSpeed() { return currentSpeed; }
+    public bool IsChasing() { return isChasing; }
+    public float GetVisionRange() { return visionRange; }
+    public float GetVisionAngle() { return visionAngle; }
 
     // Visualização no Editor
     void OnDrawGizmosSelected()

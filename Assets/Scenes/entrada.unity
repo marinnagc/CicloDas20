@@ -2788,7 +2788,7 @@ MonoBehaviour:
   fixedY: -49
   patrolSpeed: 1
   waitTimeAtPoint: 1
-  chaseSpeed: 4
+  chaseSpeed: 2
   visionRange: 8
   visionAngle: 90
   obstacleLayer:
@@ -35777,7 +35777,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coneDistance: 5
-  coneAngle: 90
+  coneAngle: 70
   coneSegments: 20
   coneColor: {r: 1, g: 1, b: 0.8, a: 0.3}
   coneColorChasing: {r: 1, g: 0.3, b: 0.3, a: 0.4}

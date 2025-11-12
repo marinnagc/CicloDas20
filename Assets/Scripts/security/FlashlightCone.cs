@@ -3,12 +3,12 @@ using UnityEngine;
 public class FlashlightCone : MonoBehaviour
 {
     [Header("Configurações da Lanterna")]
-    [SerializeField] private float coneDistance = 5f; // Distância do cone (menor que antes)
-    [SerializeField] private float coneAngle = 90f; // Ângulo do cone
-    [SerializeField] private int coneSegments = 20; // Quantos segmentos para fazer o cone suave
+    [SerializeField] private float coneDistance = 5f; // Distância do cone
+    [SerializeField] private float coneAngle = 90f;   // Ângulo do cone
+    [SerializeField] private int coneSegments = 20;   // Segmentos para suavizar o cone
 
     [Header("Aparência")]
-    [SerializeField] private Color coneColor = new Color(1f, 1f, 0.8f, 0.3f); // Amarelo semi-transparente
+    [SerializeField] private Color coneColor = new Color(1f, 1f, 0.8f, 0.3f);      // Amarelo semi-transparente
     [SerializeField] private Color coneColorChasing = new Color(1f, 0.3f, 0.3f, 0.4f); // Vermelho quando perseguindo
 
     [Header("Horários")]
@@ -20,6 +20,9 @@ public class FlashlightCone : MonoBehaviour
     private MeshRenderer meshRenderer;
     private AiAgente aiAgente;
 
+    // Controle de rotação
+    private float currentBaseAngle = 0f;
+
     void Awake()
     {
         // Adiciona componentes necessários
@@ -30,17 +33,14 @@ public class FlashlightCone : MonoBehaviour
         meshRenderer.material = new Material(Shader.Find("Sprites/Default"));
         meshRenderer.material.color = coneColor;
 
-        // Configurações para renderizar corretamente
+        // Configurações de renderização
         meshRenderer.sortingLayerName = "Default";
-        meshRenderer.sortingOrder = 5; // Renderiza por cima de outras coisas
+        meshRenderer.sortingOrder = 5;
 
         // Pega referência ao AiAgente
         aiAgente = GetComponentInParent<AiAgente>();
-
         if (aiAgente == null)
-        {
             Debug.LogError("[FlashlightCone] Não encontrou AiAgente no pai! Certifique-se que este GameObject é filho do Security.");
-        }
     }
 
     void Update()
@@ -53,14 +53,12 @@ public class FlashlightCone : MonoBehaviour
         if (horaAtual >= horaInicioVisao && horaAtual < horaFimVisao)
         {
             meshRenderer.enabled = true;
+
+            // Atualiza direção antes de desenhar
+            UpdateDirectionRotation();
+
             UpdateConeMesh();
             UpdateConeColor();
-
-            // Debug para ver a direção
-            if (Time.frameCount % 60 == 0) // A cada segundo
-            {
-                Debug.Log($"[Flashlight] Parent Scale X: {transform.parent.localScale.x} | Olhando: {(transform.parent.localScale.x > 0 ? "DIREITA" : "ESQUERDA")}");
-            }
         }
         else
         {
@@ -68,24 +66,41 @@ public class FlashlightCone : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gira o cone da lanterna conforme a direção do personagem.
+    /// </summary>
+    void UpdateDirectionRotation()
+    {
+        if (transform.parent == null) return;
+
+        float parentScaleX = transform.parent.localScale.x;
+
+        // Se estiver olhando para a direita (escala positiva)
+        if (parentScaleX > 0)
+        {
+            // Rotação zero (cone pra direita)
+            currentBaseAngle = 0f;
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (parentScaleX < 0)
+        {
+            // Rotaciona 180° no eixo Z para virar pra esquerda
+            currentBaseAngle = 180f;
+            transform.localRotation = Quaternion.Euler(180f, 0, 180f);
+        }
+    }
+
     void UpdateConeMesh()
     {
         Mesh mesh = new Mesh();
 
-        // Vértices do cone
         Vector3[] vertices = new Vector3[coneSegments + 2];
         int[] triangles = new int[coneSegments * 3];
 
-        // Ponto de origem (centro do cone)
+        // Origem do cone
         vertices[0] = Vector3.zero;
 
-        // Determina a direção base do cone
-        // Se scale.x > 0 = olhando DIREITA (0°)
-        // Se scale.x < 0 = olhando ESQUERDA (180°)
-        float baseAngle = transform.parent.localScale.x > 0 ? 0f : 180f;
-
-        // Calcula os pontos ao redor do cone
-        float startAngle = baseAngle - (coneAngle / 2f);
+        float startAngle = -coneAngle / 2f;
         float angleStep = coneAngle / coneSegments;
 
         for (int i = 0; i <= coneSegments; i++)
@@ -93,16 +108,11 @@ public class FlashlightCone : MonoBehaviour
             float currentAngle = startAngle + (angleStep * i);
             float rad = currentAngle * Mathf.Deg2Rad;
 
-            // Calcula posição do vértice
-            Vector3 direction = new Vector3(
-                Mathf.Cos(rad),
-                Mathf.Sin(rad),
-                0
-            );
+            // Direção no eixo local (sempre pra frente)
+            Vector3 dir = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0);
 
-            vertices[i + 1] = direction * coneDistance;
+            vertices[i + 1] = dir * coneDistance;
 
-            // Cria triângulos
             if (i < coneSegments)
             {
                 triangles[i * 3] = 0;
@@ -122,12 +132,8 @@ public class FlashlightCone : MonoBehaviour
     {
         // Muda cor baseado se está perseguindo ou não
         if (aiAgente != null && aiAgente.IsChasing())
-        {
             meshRenderer.material.color = coneColorChasing;
-        }
         else
-        {
             meshRenderer.material.color = coneColor;
-        }
     }
 }
