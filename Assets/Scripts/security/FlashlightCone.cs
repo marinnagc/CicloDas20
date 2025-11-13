@@ -76,18 +76,18 @@ public class FlashlightCone : MonoBehaviour
         float parentScaleX = transform.parent.localScale.x;
 
         // Se estiver olhando para a direita (escala positiva)
-        if (parentScaleX > 0)
-        {
-            // Rotação zero (cone pra direita)
-            currentBaseAngle = 0f;
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
-        }
-        else if (parentScaleX < 0)
-        {
-            // Rotaciona 180° no eixo Z para virar pra esquerda
-            currentBaseAngle = 180f;
-            transform.localRotation = Quaternion.Euler(0, 0, 180f);
-        }
+        //if (parentScaleX > 0)
+        //{
+        //    // Rotação zero (cone pra direita)
+        //    currentBaseAngle = 0f;
+        //    transform.localRotation = Quaternion.Euler(0, 0, 0);
+        //}
+        //else if (parentScaleX < 0)
+        //{
+        //    // Rotaciona 180° no eixo Z para virar pra esquerda
+        //    currentBaseAngle = 180f;
+        //    transform.localRotation = Quaternion.Euler(0, 0, 180f);
+        //}
     }
 
     void UpdateConeMesh()
