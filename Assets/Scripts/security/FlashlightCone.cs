@@ -86,7 +86,7 @@ public class FlashlightCone : MonoBehaviour
         {
             // Rotaciona 180° no eixo Z para virar pra esquerda
             currentBaseAngle = 180f;
-            transform.localRotation = Quaternion.Euler(180f, 0, 180f);
+            transform.localRotation = Quaternion.Euler(0, 0, 180f);
         }
     }
 
