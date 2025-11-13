@@ -16,7 +16,7 @@ public class MainMenuController : MonoBehaviour
 
     public void Instrucoes()
     {
-        Debug.Log("Abrir Instruções");
+        SceneManager.LoadScene("Instrucoes");
     }
 
     public void Resolucao()
