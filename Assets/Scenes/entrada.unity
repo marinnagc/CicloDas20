@@ -3192,15 +3192,15 @@ MonoBehaviour:
   maxX: -6
   fixedY: -49
   patrolSpeed: 1
-  waitTimeAtPoint: 1.5
-  chaseSpeed: 3
+  waitTimeAtPoint: 1.7
+  chaseSpeed: 1.8
   visionRange: 8
-  visionAngle: 90
+  visionAngle: 60
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   horaFicarParado: 6
-  horaIniciarRonda: 20
+  horaIniciarRonda: 7
   horaFimRonda: 22
 --- !u!1 &307611560
 GameObject:
@@ -4456,7 +4456,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 3}
+  m_Size: {x: 1.4, y: 4}
   m_EdgeRadius: 0
 --- !u!4 &1227042411
 Transform:
@@ -4467,7 +4467,7 @@ Transform:
   m_GameObject: {fileID: 1227042408}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.01, y: -55.71, z: -9.988727}
+  m_LocalPosition: {x: -7.01, y: -55.79, z: -9.988727}
   m_LocalScale: {x: 2.5, y: 0.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -36217,7 +36217,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1757560530}
   - component: {fileID: 1757560531}
-  - component: {fileID: 1757560532}
   m_Layer: 0
   m_Name: Flashlight
   m_TagString: Untagged
@@ -36253,31 +36252,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coneDistance: 5
-  coneAngle: 50
+  coneAngle: 60
   coneSegments: 20
   coneColor: {r: 1, g: 1, b: 0.8, a: 0.3}
   coneColorChasing: {r: 1, g: 0.3, b: 0.3, a: 0.4}
-  horaInicioVisao: 20
+  horaInicioVisao: 7
   horaFimVisao: 22
---- !u!114 &1757560532
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1757560529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d66fd23b3e4f4ca46abe925c8f887578, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  coneDistance: 5
-  coneAngle: 90
-  coneSegments: 20
-  coneColor: {r: 1, g: 1, b: 0.8, a: 0.3}
-  coneColorChasing: {r: 1, g: 0.3, b: 0.3, a: 0.4}
-  horaInicioVisao: 20
-  horaFimVisao: 22
+  smoothTime: 0.08
 --- !u!1 &1787963272
 GameObject:
   m_ObjectHideFlags: 0

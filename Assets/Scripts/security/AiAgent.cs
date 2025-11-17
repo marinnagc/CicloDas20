@@ -39,6 +39,10 @@ public class AiAgente : MonoBehaviour
     private Vector3 startPosition;
     private Vector3 returnTarget;
 
+    public Transform GetPlayer()
+    {
+        return player;
+    }
     void Awake()
     {
         rb2d = GetComponent<Rigidbody2D>();
@@ -270,30 +274,60 @@ public class AiAgente : MonoBehaviour
 
     bool CanSeePlayer()
     {
-        if (player == null) return false;
+        if (player == null)
+        {
+            Debug.LogWarning("[SecurityGuard] Player é NULL!");
+            return false;
+        }
 
         Vector3 directionToPlayer = player.position - transform.position;
         float distanceToPlayer = directionToPlayer.magnitude;
 
+        Debug.Log($"[SecurityGuard] Distância até player: {distanceToPlayer:F2} | Range: {visionRange}");
+
         // Verifica distância
         if (distanceToPlayer > visionRange)
+        {
+            Debug.Log("[SecurityGuard] Player fora do alcance!");
             return false;
+        }
 
-        // Verifica ângulo
-        Vector3 forward = transform.right; // Assuming sprite faces right by default
+        // CORREÇÃO: Usa a direção baseada no localScale.x (direção do sprite)
+        // Se localScale.x > 0 -> olhando para direita (1, 0, 0)
+        // Se localScale.x < 0 -> olhando para esquerda (-1, 0, 0)
+        Vector3 forward = transform.localScale.x > 0 ? Vector3.right : Vector3.left;
+        Debug.Log($"[SecurityGuard] Forward: {forward} | LocalScale.x: {transform.localScale.x}");
+
         float angle = Vector3.Angle(forward, directionToPlayer);
+        Debug.Log($"[SecurityGuard] Ângulo até player: {angle:F2}° | Max permitido: {visionAngle / 2f}°");
 
         if (angle > visionAngle / 2f)
+        {
+            Debug.Log("[SecurityGuard] Player fora do ângulo de visão!");
             return false;
+        }
 
-        // Verifica obstáculos (mantive seu uso original de obstacleLayer)
+        // Verifica obstáculos
         RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, obstacleLayer);
-        if (hit.collider != null && hit.collider.transform != player)
-            return false;
 
+        if (hit.collider != null)
+        {
+            Debug.Log($"[SecurityGuard] Raycast atingiu: {hit.collider.name} | É o player? {hit.collider.transform == player}");
+
+            if (hit.collider.transform != player)
+            {
+                Debug.Log("[SecurityGuard] Obstáculo bloqueando visão!");
+                return false;
+            }
+        }
+        else
+        {
+            Debug.Log("[SecurityGuard] Raycast limpo - PLAYER VISÍVEL!");
+        }
+
+        Debug.Log("[SecurityGuard] ✓ PLAYER DETECTADO!");
         return true;
     }
-
     void UpdateAnimator()
     {
         if (animator == null) return;

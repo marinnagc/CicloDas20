@@ -249,18 +249,47 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
 
     bool CanSeePlayer()
     {
-        if (player == null) return false;
+        if (player == null)
+        {
+            Debug.LogWarning("[Guard] Player é NULL!");
+            return false;
+        }
 
         Vector3 directionToPlayer = player.position - transform.position;
         float distanceToPlayer = directionToPlayer.magnitude;
 
-        if (distanceToPlayer > visionRange) return false;
+        Debug.Log($"[Guard] Distância até player: {distanceToPlayer:F2} | Range: {visionRange}");
 
-        Vector3 forward = transform.up; // use up como frente no 2D navmesh
+        if (distanceToPlayer > visionRange)
+        {
+            Debug.Log($"[Guard] Player fora do alcance!");
+            return false;
+        }
+
+        // Direção baseada no localScale.x
+        Vector3 forward = transform.localScale.x > 0 ? Vector3.right : Vector3.left;
+        Debug.Log($"[Guard] Forward direction: {forward} | LocalScale.x: {transform.localScale.x}");
+
         float angle = Vector3.Angle(forward, directionToPlayer);
-        if (angle > visionAngle / 2f) return false;
+        Debug.Log($"[Guard] Ângulo até player: {angle:F2}° | Max permitido: {visionAngle / 2f}°");
+
+        if (angle > visionAngle / 2f)
+        {
+            Debug.Log($"[Guard] Player fora do ângulo de visão!");
+            return false;
+        }
 
         RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, obstacleLayer);
+
+        if (hit.collider != null)
+        {
+            Debug.Log($"[Guard] Raycast atingiu: {hit.collider.name} | É o player? {hit.collider.transform == player}");
+        }
+        else
+        {
+            Debug.Log($"[Guard] Raycast não atingiu nada - PLAYER VISÍVEL!");
+        }
+
         if (hit.collider == null)
         {
             // sem colisão no meio -> considera visível
@@ -272,7 +301,6 @@ public class GuardPatrolNavMesh2D : MonoBehaviour
 
         return false;
     }
-
     void OnDrawGizmosSelected()
     {
         if (TimerController.Instance == null) return;

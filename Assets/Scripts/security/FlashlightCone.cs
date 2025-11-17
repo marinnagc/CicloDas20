@@ -20,18 +20,23 @@ public class FlashlightCone : MonoBehaviour
     private MeshRenderer meshRenderer;
     private AiAgente aiAgente;
 
-    // Controle de rotação
-    private float currentBaseAngle = 0f;
+    // Controle de rotação / suavização
+    private float rotationVelocity = 0f;
+    [SerializeField] private float smoothTime = 0.08f; // tempo de suavização da rotação
 
     void Awake()
     {
+        Debug.Log("[FlashlightCone] Awake iniciado");
+
         // Adiciona componentes necessários
         meshFilter = gameObject.AddComponent<MeshFilter>();
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        Debug.Log("[FlashlightCone] MeshFilter e MeshRenderer adicionados");
 
         // Cria material para o cone
         meshRenderer.material = new Material(Shader.Find("Sprites/Default"));
         meshRenderer.material.color = coneColor;
+        Debug.Log($"[FlashlightCone] Material criado com cor: {coneColor}");
 
         // Configurações de renderização
         meshRenderer.sortingLayerName = "Default";
@@ -40,18 +45,30 @@ public class FlashlightCone : MonoBehaviour
         // Pega referência ao AiAgente
         aiAgente = GetComponentInParent<AiAgente>();
         if (aiAgente == null)
-            Debug.LogError("[FlashlightCone] Não encontrou AiAgente no pai! Certifique-se que este GameObject é filho do Security.");
+        {
+            Debug.LogError("[FlashlightCone] ERRO: Não encontrou AiAgente no pai!");
+        }
+        else
+        {
+            Debug.Log("[FlashlightCone] AiAgente encontrado com sucesso!");
+        }
     }
 
     void Update()
     {
-        if (TimerController.Instance == null) return;
+        if (TimerController.Instance == null)
+        {
+            Debug.LogWarning("[FlashlightCone] TimerController.Instance é NULL!");
+            return;
+        }
 
         int horaAtual = TimerController.Instance.GetHoraInteira();
+        Debug.Log($"[FlashlightCone] Hora atual: {horaAtual} | Deve mostrar entre {horaInicioVisao}h e {horaFimVisao}h");
 
         // Só mostra o cone das 20h às 22h
         if (horaAtual >= horaInicioVisao && horaAtual < horaFimVisao)
         {
+            Debug.Log("[FlashlightCone] Dentro do horário - ATIVANDO mesh");
             meshRenderer.enabled = true;
 
             // Atualiza direção antes de desenhar
@@ -62,34 +79,46 @@ public class FlashlightCone : MonoBehaviour
         }
         else
         {
+            Debug.Log("[FlashlightCone] Fora do horário - DESATIVANDO mesh");
             meshRenderer.enabled = false;
         }
     }
-
-    /// <summary>
-    /// Gira o cone da lanterna conforme a direção do personagem.
-    /// </summary>
     void UpdateDirectionRotation()
     {
-        if (transform.parent == null) return;
+        if (transform.parent == null || aiAgente == null) return;
 
-        float parentScaleX = transform.parent.localScale.x;
+        Transform player = aiAgente.GetPlayer();
+        bool isChasing = aiAgente.IsChasing();
 
-        // Se estiver olhando para a direita (escala positiva)
-        //if (parentScaleX > 0)
-        //{
-        //    // Rotação zero (cone pra direita)
-        //    currentBaseAngle = 0f;
-        //    transform.localRotation = Quaternion.Euler(0, 0, 0);
-        //}
-        //else if (parentScaleX < 0)
-        //{
-        //    // Rotaciona 180° no eixo Z para virar pra esquerda
-        //    currentBaseAngle = 180f;
-        //    transform.localRotation = Quaternion.Euler(0, 0, 180f);
-        //}
+        // Pegamos o ângulo atual em espaço LOCAL (z local)
+        float currentLocalZ = transform.localEulerAngles.z;
+
+        float desiredLocalAngleDeg = currentLocalZ; // fallback: manter o atual
+
+        if (isChasing && player != null)
+        {
+            // Vetor posição do player em relação ao pai, transformado para o espaço LOCAL do pai.
+            // Assim lidamos corretamente com escala negativa/flip no pai.
+            Vector3 localPlayerPos = transform.parent.InverseTransformPoint(player.position);
+            Vector3 localDir = (localPlayerPos - transform.localPosition); // direção no espaço local do pai
+
+            // Se a direção for quase zero, mantemos o ângulo atual
+            if (localDir.sqrMagnitude > 0.0001f)
+            {
+                desiredLocalAngleDeg = Mathf.Atan2(localDir.y, localDir.x) * Mathf.Rad2Deg;
+            }
+        }
+        else
+        {
+            // Opcional: quando não perseguindo, você pode fazer com que o cone acompanhe a "facing" do inimigo.
+            // Se o AiAgente tiver um método para dizer pra que lado está virando (ex: GetFacingAngleLocal()),
+            // use-o aqui para manter a lanterna alinhada quando não perseguindo.
+        }
+
+        // Suaviza a rotação (em espaço local)
+        float smoothLocalZ = Mathf.SmoothDampAngle(currentLocalZ, desiredLocalAngleDeg, ref rotationVelocity, smoothTime);
+        transform.localRotation = Quaternion.Euler(0f, 0f, smoothLocalZ);
     }
-
     void UpdateConeMesh()
     {
         Mesh mesh = new Mesh();
@@ -97,7 +126,7 @@ public class FlashlightCone : MonoBehaviour
         Vector3[] vertices = new Vector3[coneSegments + 2];
         int[] triangles = new int[coneSegments * 3];
 
-        // Origem do cone
+        // Origem do cone (local)
         vertices[0] = Vector3.zero;
 
         float startAngle = -coneAngle / 2f;
