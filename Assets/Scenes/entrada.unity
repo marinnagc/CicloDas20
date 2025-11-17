@@ -3340,7 +3340,7 @@ MonoBehaviour:
   warningText: {fileID: 1455866618}
   horarioAtivar: 16
   duracaoTela: 5
-  mensagemAviso: "\u26A0\uFE0F REM\xC9DIO ATIVADO!\nDURA\xC7\xC3O: 2 HORAS \u26A0\uFE0F"
+  mensagemAviso: "REM\xC9DIO ATIVADO!\nDURA\xC7\xC3O: 2 HORAS!"
   usarFadeIn: 1
   fadeInDuration: 0.5
   usarPiscada: 1
