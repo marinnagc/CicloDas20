@@ -3225,7 +3225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3880bbe232adad248a89dd5b319d1c4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duracaoEmMinutos: 5
+  duracaoEmMinutos: 1
   horaInicial: 6
   horaFinal: 22
   textoRelogio: {fileID: 2040798716}
@@ -4150,7 +4150,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &857460140
 MonoBehaviour:
   m_ObjectHideFlags: 0
