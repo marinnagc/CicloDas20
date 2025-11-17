@@ -3315,6 +3315,7 @@ GameObject:
   m_Component:
   - component: {fileID: 336222865}
   - component: {fileID: 336222864}
+  - component: {fileID: 336222866}
   m_Layer: 0
   m_Name: MedicineWarningSystem
   m_TagString: Untagged
@@ -3356,9 +3357,22 @@ Transform:
   m_LocalPosition: {x: 480, y: 300, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 540821026}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &336222866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 336222863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 889e822c8ed001b4aa3b4cd45f114f66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &370036897
 GameObject:
   m_ObjectHideFlags: 0
@@ -3706,7 +3720,7 @@ RectTransform:
   m_Children:
   - {fileID: 1455866620}
   - {fileID: 370036898}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 336222865}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -36624,7 +36638,7 @@ MonoBehaviour:
   coneSegments: 20
   coneColor: {r: 1, g: 1, b: 0.8, a: 0.3}
   coneColorChasing: {r: 1, g: 0.3, b: 0.3, a: 0.4}
-  horaInicioVisao: 7
+  horaInicioVisao: 20
   horaFimVisao: 22
   smoothTime: 0.08
 --- !u!1 &1787963272
@@ -36959,5 +36973,4 @@ SceneRoots:
   - {fileID: 1026301424}
   - {fileID: 295407411}
   - {fileID: 952619340}
-  - {fileID: 540821026}
   - {fileID: 336222865}

@@ -5,6 +5,8 @@ using System.Collections;
 
 public class MedicineWarningUI : MonoBehaviour
 {
+    public static MedicineWarningUI Instance;
+
     [Header("Referências UI")]
     [SerializeField] private GameObject warningPanel; // O Canvas ou um painel pai
     [SerializeField] private Image redOverlay;
@@ -23,6 +25,21 @@ public class MedicineWarningUI : MonoBehaviour
 
     private bool jaExibiu = false;
     private int ultimoHorarioChecado = -1;
+
+    void Awake()
+    {
+        // Garante que só existe um MedicineWarningUI entre todas as cenas
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Mantém o objeto nas trocas de cena
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
 
     void Start()
     {
