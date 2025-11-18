@@ -1443,6 +1443,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2103456701}
+  - component: {fileID: 2103456703}
+  - component: {fileID: 2103456702}
   m_Layer: 0
   m_Name: TransitionManager
   m_TagString: Untagged
@@ -1465,6 +1467,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2103456702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103456700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc759c78efe99f548a24a31fed23467e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2103456703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103456700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b764c0a0272f8c941a1238ab0eb29e7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeDuration: 1
+  dayTextDuration: 1.8
+  dayTextFormat: DAY {0}
 --- !u!1 &2119702816
 GameObject:
   m_ObjectHideFlags: 0
