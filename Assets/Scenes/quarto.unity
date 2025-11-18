@@ -37675,7 +37675,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  colorPresence: 1
+  colorPresence: 2
   normalizedTime: 0
 --- !u!223 &1948793140
 Canvas:
