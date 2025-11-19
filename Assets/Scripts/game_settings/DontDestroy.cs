@@ -1,17 +1,19 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DontDestroy : MonoBehaviour
 {
-    void Start()
+    private void Awake()
     {
         DontDestroy[] objs = FindObjectsOfType<DontDestroy>();
 
         if (objs.Length > 1)
         {
-            Destroy(this.gameObject);
+            // Já existe outro igual → destrói este antes de tudo
+            Destroy(gameObject);
             return;
         }
 
-        DontDestroyOnLoad(this.gameObject);
+        // Só o primeiro sobrevive entre cenas
+        DontDestroyOnLoad(gameObject);
     }
 }
