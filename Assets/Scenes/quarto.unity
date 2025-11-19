@@ -37283,9 +37283,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2120768551}
-  - component: {fileID: 2120768554}
   - component: {fileID: 2120768553}
   - component: {fileID: 2120768552}
+  - component: {fileID: 2120768554}
   m_Layer: 0
   m_Name: SoundManager
   m_TagString: Untagged
@@ -37511,26 +37511,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 2120768550}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aca340580b490c34a95e4a2d3f62f687, type: 3}
+  m_Script: {fileID: 11500000, guid: b4ee64f14e7542e4e86fc168d6d6b56d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startHour: 6
-  endHour: 22
-  dayLengthSeconds: 300
-  musicSource: {fileID: 0}
-  sfxSource: {fileID: 0}
+  timer: {fileID: 223561951}
+  sfxSource: {fileID: 2120768552}
   alarmClip: {fileID: 8300000, guid: bbee9b1a58df5ba4ab56c377499c7410, type: 3}
   curfewClip: {fileID: 8300000, guid: dc97d6c1582e7fb4c92120ffbab37890, type: 3}
   alarmHour: 16
   curfewHour: 20
-  OnAlarmTriggered:
-    m_PersistentCalls:
-      m_Calls: []
-  OnCurfewTriggered:
-    m_PersistentCalls:
-      m_Calls: []
-  debugLogs: 1
-  normalizedTime: 0
+  resetHour: 6
 --- !u!1001 &2133149960
 PrefabInstance:
   m_ObjectHideFlags: 0
