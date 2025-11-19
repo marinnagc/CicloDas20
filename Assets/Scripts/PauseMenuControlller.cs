@@ -8,6 +8,20 @@ public class PauseMenuController : MonoBehaviour
 
     private bool isPaused = false;
 
+    void Awake()
+    {
+        // Garante que só exista UM PauseMenuController no jogo inteiro
+        var objs = FindObjectsOfType<PauseMenuController>();
+        if (objs.Length > 1)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        // Faz esse objeto sobreviver à troca de cenas
+        DontDestroyOnLoad(gameObject);
+    }
+
     void Start()
     {
         // Garante que o jogo começa despausado
@@ -50,7 +64,7 @@ public class PauseMenuController : MonoBehaviour
         }
 
         // Mata o gerenciador de som (muda o tipo pro nome do seu script!)
-        var soundManager = FindObjectOfType<SoundAndAlarmManager>();  // ou Som_fundo, BgmManager, etc.
+        var soundManager = FindObjectOfType<SoundAndAlarmManager>();
         if (soundManager != null)
         {
             Destroy(soundManager.gameObject);
