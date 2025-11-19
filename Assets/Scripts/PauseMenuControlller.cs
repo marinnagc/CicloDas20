@@ -24,7 +24,16 @@ public class PauseMenuController : MonoBehaviour
 
     void Start()
     {
-        // Garante que o jogo começa despausado
+        // Garante que o jogo começa despausado na primeira cena
+        ResetPauseState();
+    }
+
+    /// <summary>
+    /// Deixa tudo no estado "despausado"
+    /// </summary>
+    private void ResetPauseState()
+    {
+        isPaused = false;
         Time.timeScale = 1f;
 
         if (pausePanel != null)
@@ -45,16 +54,14 @@ public class PauseMenuController : MonoBehaviour
     // Botão "Retomar"
     public void ResumeGame()
     {
-        isPaused = false;
-        Time.timeScale = 1f; // volta ao normal
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
+        ResetPauseState();
     }
 
     // Botão "Menu Inicial / Desistir"
     public void GoToMainMenu()
     {
-        Time.timeScale = 1f;
+        // garante que vamos sair despausados e sem painel aberto
+        ResetPauseState();
 
         // Mata o DayNightController (cronômetro / dia)
         var dayNight = FindObjectOfType<DayNightController>();
