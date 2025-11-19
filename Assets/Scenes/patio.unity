@@ -1764,6 +1764,7 @@ GameObject:
   - component: {fileID: 1095267306}
   - component: {fileID: 1095267305}
   - component: {fileID: 1095267304}
+  - component: {fileID: 1095267311}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1930,7 +1931,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!95 &1095267309
 Animator:
   serializedVersion: 7
@@ -1968,6 +1969,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1095267311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095267303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c2a87739d76315449db8139b2789617, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  multiplier: 100
+  offset: 0
 --- !u!1 &1172058563
 GameObject:
   m_ObjectHideFlags: 0
@@ -2055,7 +2070,7 @@ Transform:
   m_GameObject: {fileID: 1172058563}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.84, y: -55.69, z: -9.988727}
+  m_LocalPosition: {x: -10.88, y: -55.17, z: -9.988727}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -34739,7 +34754,7 @@ Transform:
   m_GameObject: {fileID: 1763826616}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.83, y: -54.65, z: -9.984357}
+  m_LocalPosition: {x: -10.83, y: -54.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -35053,7 +35068,7 @@ Transform:
   m_GameObject: {fileID: 1833362070}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.5361595, y: -55.368282, z: -10.004893}
+  m_LocalPosition: {x: -8.5361595, y: -55.368282, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -37812,6 +37827,7 @@ SceneRoots:
   - {fileID: 2106311693}
   - {fileID: 466413031}
   - {fileID: 526168553}
+  - {fileID: 1172058566}
   - {fileID: 647099443}
   - {fileID: 1095267310}
   - {fileID: 1783649555}
@@ -37823,4 +37839,3 @@ SceneRoots:
   - {fileID: 630194677}
   - {fileID: 1763826617}
   - {fileID: 1833362072}
-  - {fileID: 1172058566}
