@@ -5,7 +5,8 @@ using System.Collections;
 public class Door : MonoBehaviour
 {
     [Header("Configuração da porta")]
-    public string sceneToLoad; // Nome da próxima cena (igual ao Build Settings)
+    public string sceneToLoad;      // nome da cena destino (igual ao Build Settings)
+    public string spawnPointName;   // ID do SpawnPoint na cena destino
 
     bool isTransitioning = false;
 
@@ -24,9 +25,11 @@ public class Door : MonoBehaviour
         if (ScreenFader.Instance != null)
             yield return ScreenFader.Instance.StartCoroutine(ScreenFader.Instance.FadeOut());
 
+        // Guarda o spawn para a próxima cena
+        PlayerSpawnManager.nextSpawnPoint = spawnPointName;
+
         SceneManager.LoadScene(sceneToLoad);
 
-        // Espera 1 frame pra garantir que a nova cena carregou
         yield return null;
 
         if (ScreenFader.Instance != null)
