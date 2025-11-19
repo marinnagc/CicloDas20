@@ -20,13 +20,24 @@ public class TimerController : MonoBehaviour
 
     public static TimerController Instance;
 
+    void Awake()
+    {
+        // SINGLETON GLOBAL
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);   // já existe um Timer global -> destrói o novo
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);  // esse Timer sobrevive às trocas de cena
+    }
     void Start()
     {
         duracaoEmSegundos = duracaoEmMinutos * 60f;
         horasTotais = horaFinal - horaInicial;
         horaAtual = horaInicial;
 
-        Instance = this;
         AtualizarUI();
     }
 

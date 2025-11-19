@@ -4412,6 +4412,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToLoad: patio
+  spawnPointName: 
 --- !u!61 &1227042410
 BoxCollider2D:
   m_ObjectHideFlags: 0
