@@ -35089,9 +35089,9 @@ GameObject:
   - component: {fileID: 1783649552}
   - component: {fileID: 1783649551}
   - component: {fileID: 1783649556}
-  - component: {fileID: 1783649557}
   - component: {fileID: 1783649559}
   - component: {fileID: 1783649558}
+  - component: {fileID: 1783649560}
   m_Layer: 0
   m_Name: Gardener
   m_TagString: Untagged
@@ -35248,20 +35248,6 @@ MonoBehaviour:
   mensagem: "Todo dia \xE0s 16h tudo muda! O Dr.Maur\xEDcio deve saber mais sobre
     isso."
   interactionKey: 101
---- !u!114 &1783649557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1783649549}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f1f80eb18952cf44a1f4125d2db108c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMaterial: {fileID: 0}
-  normalMaterial: {fileID: 0}
 --- !u!114 &1783649558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35322,6 +35308,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.93, y: 2.04}
   m_EdgeRadius: 0
+--- !u!114 &1783649560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783649549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1f80eb18952cf44a1f4125d2db108c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMaterial: {fileID: 2100000, guid: fb28e3acb584be1459eac2a3995925db, type: 2}
 --- !u!1001 &1795127441
 PrefabInstance:
   m_ObjectHideFlags: 0
