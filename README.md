@@ -1,3 +1,7 @@
+Pronto — atualizei a seção de **Créditos** incluindo os créditos pelos sprites para os links que você enviou e adicionei um link de preview para o arquivo que você subiu. Segue o texto completo (em Markdown) com as mudanças:
+
+---
+
 # 🌙 Ciclo das 20
 
 <div align="center">
@@ -16,12 +20,12 @@
 
 ### ✨ Características Principais
 
-- 🕐 **Sistema de Tempo Dinâmico** - O dia avança das 6h às 22h em tempo real
-- 🔄 **Mecânica de Loop Temporal** - Cada dia recomeça, mas você mantém seu conhecimento
-- 🔍 **Exploração e Mistério** - Descubra pistas escondidas pelo hospital
-- 🌙 **Ciclo Dia/Noite** - Diferentes perigos e oportunidades após as 20h
-- ⏱️ **Gestão de Tempo** - Apenas 10 dias para encontrar a saída
-- 🎭 **NPCs Interativos** - Converse com funcionários e pacientes para obter pistas
+* 🕐 **Sistema de Tempo Dinâmico** - O dia avança das 6h às 22h em tempo real
+* 🔄 **Mecânica de Loop Temporal** - Cada dia recomeça, mas você mantém seu conhecimento
+* 🔍 **Exploração e Mistério** - Descubra pistas escondidas pelo hospital
+* 🌙 **Ciclo Dia/Noite** - Diferentes perigos e oportunidades após as 20h
+* ⏱️ **Gestão de Tempo** - Apenas 10 dias para encontrar a saída
+* 🎭 **NPCs Interativos** - Converse com funcionários e pacientes para obter pistas
 
 ---
 
@@ -43,32 +47,33 @@ Você tem **10 dias** para escapar. Passado esse tempo, será tarde demais.
 
 ### ⏰ Sistema de Tempo
 
-- **6h - 20h**: Horário seguro - Explore livremente e converse com NPCs
-- **20h - 22h**: Toque de recolher - Fique no quarto ou arrisque ser pego
-- **22h**: O dia reinicia automaticamente
+* **6h - 20h**: Horário seguro - Explore livremente e converse com NPCs
+* **20h - 22h**: Toque de recolher - Fique no quarto ou arrisque ser pego
+* **22h**: O dia reinicia automaticamente
 
 ### 🚨 Punição por Captura
 
 Se o segurança te pegar fora do quarto após as 20h:
-- ⚠️ O próximo dia começa às **8h em vez de 6h**
-- ⏳ Você **perde 2 horas** de tempo útil
-- 📉 Menos tempo para investigar e encontrar pistas
+
+* ⚠️ O próximo dia começa às **8h em vez de 6h**
+* ⏳ Você **perde 2 horas** de tempo útil
+* 📉 Menos tempo para investigar e encontrar pistas
 
 ### 📅 Limite de Dias
 
-- Você tem **10 dias** para escapar
-- No **11º dia**, é **Game Over**
-- Use seu tempo com sabedoria!
+* Você tem **10 dias** para escapar
+* No **11º dia**, é **Game Over**
+* Use seu tempo com sabedoria!
 
 ---
 
 ## 🎮 Controles
 
-| Tecla | Ação |
-|-------|------|
-| **W, A, S, D** | Movimentar personagem |
-| **E** | Interagir com objetos e pessoas |
-| **ESC** | Pausar o jogo / Voltar ao menu |
+| Tecla          | Ação                            |
+| -------------- | ------------------------------- |
+| **W, A, S, D** | Movimentar personagem           |
+| **E**          | Interagir com objetos e pessoas |
+| **ESC**        | Pausar o jogo / Voltar ao menu  |
 
 ---
 
@@ -94,16 +99,27 @@ Desenvolvido como projeto acadêmico
 **Engine**: Unity 2D
 **Ferramentas**: C#, TextMesh Pro
 
+### 🎨 Sprites e Gráficos
+
+* Sprites e recursos visuais (créditos):
+
+  * Projeto no GitHub: [https://github.com/fran-janela/projeto2D-jogos-digitais](https://github.com/fran-janela/projeto2D-jogos-digitais)
+  * Página no Itch.io (Biolab Enigma): [https://fran-janela.itch.io/biolab-enigma](https://fran-janela.itch.io/biolab-enigma)
+
+### 🖼️ Preview do recurso (arquivo enviado)
+
+* Preview local do sprite/arquivo enviado: `/mnt/data/24563ba8-ccbb-43e4-94e1-7696481b5659.png`
+
 ---
 
 ## 🏆 Dicas para Iniciantes
 
-- 🔍 **Explore tudo**: Vasculhe cada canto do hospital
-- 💬 **Converse com todos**: Cada NPC tem informações valiosas
-- 📝 **Anote as pistas**: Algumas informações são cruciais para o final
-- ⏰ **Gerencie seu tempo**: Não deixe para investigar tudo no último dia
-- 🌙 **Evite o segurança à noite**: Ser pego custa tempo precioso
-- 🧩 **Conecte as informações**: As pistas formam um quebra-cabeça maior
+* 🔍 **Explore tudo**: Vasculhe cada canto do hospital
+* 💬 **Converse com todos**: Cada NPC tem informações valiosas
+* 📝 **Anote as pistas**: Algumas informações são cruciais para o final
+* ⏰ **Gerencie seu tempo**: Não deixe para investigar tudo no último dia
+* 🌙 **Evite o segurança à noite**: Ser pego custa tempo precioso
+* 🧩 **Conecte as informações**: As pistas formam um quebra-cabeça maior
 
 ---
 
