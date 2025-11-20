@@ -52,9 +52,22 @@ public class DayNightController : MonoBehaviour
 
     void Start()
     {
-        // begin at start of day by default
-        normalizedTime = 0f;
         if (mainCamera == null) mainCamera = Camera.main;
+
+        // Hora inicial vem do estado global (6 no dia 1, 8 no dia 2, etc.)
+        float startHourToUse = GameTimeState.StartHour;
+
+        float totalHours;
+        if (endHour >= startHour)
+            totalHours = endHour - startHour;              // ex: 22 - 6 = 16
+        else
+            totalHours = (24 - startHour) + endHour;       // caso passasse da meia-noite
+
+        // Garante que está dentro do intervalo startHour..endHour
+        float clamped = Mathf.Clamp(startHourToUse, startHour, endHour);
+        float offset = clamped - startHour;
+
+        normalizedTime = totalHours > 0f ? offset / totalHours : 0f;
     }
 
     void Update()
