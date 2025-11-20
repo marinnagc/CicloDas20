@@ -8,4 +8,10 @@ public class InstructionsController : MonoBehaviour
         // Carrega a cena do menu principal
         SceneManager.LoadScene("MenuInicial");
     }
+
+    public void IrParaSolucao()
+    {
+        // Carrega a cena de Solução
+        SceneManager.LoadScene("Solucao");
+    }
 }
