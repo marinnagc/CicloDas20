@@ -3,14 +3,14 @@ using UnityEngine;
 public class MedicineWarningFromTimer : MonoBehaviour
 {
     [Header("Referências")]
-    public PlayerController playerController;   // Player
-    public GameObject warningPanel;            // painel "remedio"
-    public TimerController timer;              // seu relógio REAL da cena
+    public PlayerController playerController;
+    public GameObject warningPanel;
+    public TimerController timer;
 
     [Header("Efeito do Remédio")]
     [Range(0.1f, 1f)]
-    public float slowMultiplier = 0.4f;        // velocidade reduzida
-    public float warningDurationSeconds = 5f;  // tempo que o painel fica visível
+    public float slowMultiplier = 0.4f;
+    public float warningDurationSeconds = 5f;
 
     private float originalSpeed;
     private bool effectActive = false;
@@ -30,10 +30,10 @@ public class MedicineWarningFromTimer : MonoBehaviour
     {
         if (timer == null) return;
 
-        float horaAtual = timer.GetHoraAtual(); // ex.: 16.25 = 16:15
+        int horaAtual = timer.GetHoraInteira(); // Use GetHoraInteira() ao invés de GetHoraAtual()
 
         // 1) Aplicar lentidão das 16h até antes das 18h
-        if (horaAtual >= 16f && horaAtual < 18f)
+        if (horaAtual >= 16 && horaAtual < 18)
         {
             if (!effectActive)
                 AtivarLentidao();
@@ -45,40 +45,55 @@ public class MedicineWarningFromTimer : MonoBehaviour
         }
 
         // 2) Mostrar aviso exatamente às 16h (uma única vez)
-        if (!warningShown && horaAtual >= 16f && horaAtual < 16.05f) // janela pequena
+        if (!warningShown && horaAtual == 16)
         {
             MostrarAviso();
         }
 
         // 3) Contador para esconder o painel após X segundos
-        if (warningPanel.activeSelf)
+        if (warningPanel != null && warningPanel.activeSelf)
         {
             warningTimer -= Time.deltaTime;
             if (warningTimer <= 0f)
+            {
                 warningPanel.SetActive(false);
+                Debug.Log("[MedicineWarning] Painel escondido!");
+            }
         }
 
-        // 4) Se o dia reinicia, permitir mostrar novamente no próximo ciclo
-        if (horaAtual < 6f) // se estiver antes do horário inicial
+        // 4) Reset para o próximo dia
+        if (horaAtual < 16)
             warningShown = false;
     }
 
     private void AtivarLentidao()
     {
         effectActive = true;
-        playerController.moveSpeed = originalSpeed * slowMultiplier;
+        if (playerController != null)
+            playerController.moveSpeed = originalSpeed * slowMultiplier;
+        Debug.Log("[MedicineWarning] Lentidão ativada!");
     }
 
     private void DesativarLentidao()
     {
         effectActive = false;
-        playerController.moveSpeed = originalSpeed;
+        if (playerController != null)
+            playerController.moveSpeed = originalSpeed;
+        Debug.Log("[MedicineWarning] Lentidão desativada!");
     }
 
     private void MostrarAviso()
     {
         warningShown = true;
-        warningPanel.SetActive(true);
-        warningTimer = warningDurationSeconds;
+        if (warningPanel != null)
+        {
+            warningPanel.SetActive(true);
+            warningTimer = warningDurationSeconds;
+            Debug.Log("[MedicineWarning] Painel mostrado! Timer: " + warningDurationSeconds);
+        }
+        else
+        {
+            Debug.LogError("[MedicineWarning] warningPanel é NULL!");
+        }
     }
 }
