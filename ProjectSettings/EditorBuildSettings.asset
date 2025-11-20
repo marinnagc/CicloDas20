@@ -29,6 +29,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/quarto.unity
     guid: 600425e2136c5b4408b45c0f7ffa2c22
+  - enabled: 1
+    path: Assets/Scenes/Historias.unity
+    guid: f9e96f437b54f3f4383fd71ae1f28fcd
+  - enabled: 1
+    path: Assets/Scenes/TelaCerteza.unity
+    guid: 5df8c0976233ac848b1cc555fbe125f4
+  - enabled: 1
+    path: Assets/Scenes/Solucao.unity
+    guid: 30ae8e5ea231cb442add31877ff5270f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

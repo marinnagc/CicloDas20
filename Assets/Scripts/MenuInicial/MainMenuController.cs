@@ -14,6 +14,7 @@ public class MainMenuController : MonoBehaviour
 
     public void Historias()
     {
+        SceneManager.LoadScene("Historias");
         Debug.Log("Abrir Histórias");
     }
 
@@ -24,6 +25,7 @@ public class MainMenuController : MonoBehaviour
 
     public void Resolucao()
     {
+        SceneManager.LoadScene("TelaCerteza");
         Debug.Log("Abrir Resolução");
     }
 }
