@@ -6164,7 +6164,7 @@ MonoBehaviour:
   dialogPanel: {fileID: 1881982943}
   dialogText: {fileID: 2058922579}
   mensagem: "voc\xEA est\xE1 melhor, para sair, \xE9 s\xF3 seguir a receita da liberdade
-    e encontrar o X da que"
+    e encontrar o X da quest\xE3o."
   interactionKey: 101
 --- !u!114 &1207067775
 MonoBehaviour:
