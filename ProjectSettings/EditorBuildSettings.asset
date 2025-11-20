@@ -39,6 +39,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Solucao.unity
     guid: 30ae8e5ea231cb442add31877ff5270f
   - enabled: 1
+    path: Assets/Scenes/GanhouGG.unity
+    guid: 4abe7ca112f03e347b9535f054c17510
+  - enabled: 1
     path: Assets/Scenes/PerdeuGO.unity
     guid: 61565fb57af9f3c4683052907c840399
   m_configObjects:
