@@ -2,38 +2,55 @@ using UnityEngine;
 
 public class MedicineWarningFromTimer : MonoBehaviour
 {
-    [Header("Referências")]
+    [Header("Referências Gerais")]
     public PlayerController playerController;
-    public GameObject warningPanel;
     public TimerController timer;
 
-    [Header("Efeito do Remédio")]
+    [Header("Alerta do Remédio (16h)")]
+    public GameObject painelRemedio;
+    public int horarioRemedio = 16;
+    public float duracaoRemedio = 5f;
     [Range(0.1f, 1f)]
     public float slowMultiplier = 0.4f;
-    public float warningDurationSeconds = 5f;
+    public int fimEfeitoLentidao = 18;
 
+    [Header("Alerta do Toque de Recolher (20h)")]
+    public GameObject painelRecolher;
+    public int horarioRecolher = 20;
+    public float duracaoRecolher = 5f;
+
+    // Variáveis internas - Remédio
     private float originalSpeed;
     private bool effectActive = false;
-    private bool warningShown = false;
-    private float warningTimer = 0f;
+    private bool remedioShown = false;
+    private float remedioTimer = 0f;
+
+    // Variáveis internas - Recolher
+    private bool recolherShown = false;
+    private float recolherTimer = 0f;
 
     void Start()
     {
         if (playerController != null)
             originalSpeed = playerController.moveSpeed;
 
-        if (warningPanel != null)
-            warningPanel.SetActive(false);
+        if (painelRemedio != null)
+            painelRemedio.SetActive(false);
+
+        if (painelRecolher != null)
+            painelRecolher.SetActive(false);
     }
 
     void Update()
     {
         if (timer == null) return;
 
-        int horaAtual = timer.GetHoraInteira(); // Use GetHoraInteira() ao invés de GetHoraAtual()
+        int horaAtual = timer.GetHoraInteira();
 
-        // 1) Aplicar lentidão das 16h até antes das 18h
-        if (horaAtual >= 16 && horaAtual < 18)
+        // ========== REMÉDIO (16h) ==========
+
+        // Aplicar lentidão das 16h até antes das 18h
+        if (horaAtual >= horarioRemedio && horaAtual < fimEfeitoLentidao)
         {
             if (!effectActive)
                 AtivarLentidao();
@@ -44,26 +61,50 @@ public class MedicineWarningFromTimer : MonoBehaviour
                 DesativarLentidao();
         }
 
-        // 2) Mostrar aviso exatamente às 16h (uma única vez)
-        if (!warningShown && horaAtual == 16)
+        // Mostrar aviso do remédio
+        if (!remedioShown && horaAtual == horarioRemedio)
         {
-            MostrarAviso();
+            MostrarAviso(painelRemedio, ref remedioTimer, duracaoRemedio, "Remédio");
+            remedioShown = true;
         }
 
-        // 3) Contador para esconder o painel após X segundos
-        if (warningPanel != null && warningPanel.activeSelf)
+        // Timer do painel remédio
+        if (painelRemedio != null && painelRemedio.activeSelf)
         {
-            warningTimer -= Time.deltaTime;
-            if (warningTimer <= 0f)
+            remedioTimer -= Time.deltaTime;
+            if (remedioTimer <= 0f)
             {
-                warningPanel.SetActive(false);
-                Debug.Log("[MedicineWarning] Painel escondido!");
+                painelRemedio.SetActive(false);
+                Debug.Log("[Alertas] Painel Remédio escondido!");
             }
         }
 
-        // 4) Reset para o próximo dia
-        if (horaAtual < 16)
-            warningShown = false;
+        // ========== TOQUE DE RECOLHER (20h) ==========
+
+        // Mostrar aviso do recolher
+        if (!recolherShown && horaAtual == horarioRecolher)
+        {
+            MostrarAviso(painelRecolher, ref recolherTimer, duracaoRecolher, "Recolher");
+            recolherShown = true;
+        }
+
+        // Timer do painel recolher
+        if (painelRecolher != null && painelRecolher.activeSelf)
+        {
+            recolherTimer -= Time.deltaTime;
+            if (recolherTimer <= 0f)
+            {
+                painelRecolher.SetActive(false);
+                Debug.Log("[Alertas] Painel Recolher escondido!");
+            }
+        }
+
+        // ========== RESET PARA PRÓXIMO DIA ==========
+        if (horaAtual < horarioRemedio)
+            remedioShown = false;
+
+        if (horaAtual < horarioRecolher)
+            recolherShown = false;
     }
 
     private void AtivarLentidao()
@@ -71,7 +112,7 @@ public class MedicineWarningFromTimer : MonoBehaviour
         effectActive = true;
         if (playerController != null)
             playerController.moveSpeed = originalSpeed * slowMultiplier;
-        Debug.Log("[MedicineWarning] Lentidão ativada!");
+        Debug.Log("[Alertas] Lentidão ativada!");
     }
 
     private void DesativarLentidao()
@@ -79,21 +120,20 @@ public class MedicineWarningFromTimer : MonoBehaviour
         effectActive = false;
         if (playerController != null)
             playerController.moveSpeed = originalSpeed;
-        Debug.Log("[MedicineWarning] Lentidão desativada!");
+        Debug.Log("[Alertas] Lentidão desativada!");
     }
 
-    private void MostrarAviso()
+    private void MostrarAviso(GameObject painel, ref float timerRef, float duracao, string nome)
     {
-        warningShown = true;
-        if (warningPanel != null)
+        if (painel != null)
         {
-            warningPanel.SetActive(true);
-            warningTimer = warningDurationSeconds;
-            Debug.Log("[MedicineWarning] Painel mostrado! Timer: " + warningDurationSeconds);
+            painel.SetActive(true);
+            timerRef = duracao;
+            Debug.Log("[Alertas] Painel " + nome + " mostrado! Timer: " + duracao);
         }
         else
         {
-            Debug.LogError("[MedicineWarning] warningPanel é NULL!");
+            Debug.LogError("[Alertas] Painel " + nome + " é NULL!");
         }
     }
 }
