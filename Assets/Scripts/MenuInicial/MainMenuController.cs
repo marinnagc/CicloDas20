@@ -5,6 +5,9 @@ public class MainMenuController : MonoBehaviour
 {
     public void NovoJogo()
     {
+        // Reseta os dias para 1
+        DayManager.ResetarDias();
+
         // Carrega a cena "Quarto"
         SceneManager.LoadScene("quarto");
     }
