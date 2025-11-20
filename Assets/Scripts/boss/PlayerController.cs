@@ -6,7 +6,8 @@
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 3.5f;      // unidades por segundo
+    public float moveSpeed = 3.5f;      // velocidade base
+    public static float globalSpeedMultiplier = 1f; // 1 = normal, <1 = mais lento
 
     [Header("Animator Parameter Names")]
     public string paramMoving = "Moving"; // bool (Idle <-> Walk)
@@ -29,21 +30,15 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
-
-        // segurança: evitar rotação
         rb.freezeRotation = true;
     }
 
     void Update()
     {
-        // Input (setas ou WASD)
-        movement.x = Input.GetAxisRaw("Horizontal"); // -1,0,1
+        movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
-
-        // Normaliza para evitar maior velocidade na diagonal
         movement = movement.normalized;
 
-        // Animator params
         bool isMoving = movement.sqrMagnitude > 0.01f;
         if (anim != null)
         {
@@ -53,17 +48,16 @@ public class PlayerController : MonoBehaviour
             if (!string.IsNullOrEmpty(paramSpeed)) anim.SetFloat(paramSpeed, movement.sqrMagnitude);
         }
 
-        // flip horizontal (se seus sprites forem para a direita por padrão)
         if (movement.x < 0) sr.flipX = true;
         else if (movement.x > 0) sr.flipX = false;
 
-        // sorting order por Y (simples)
         if (useYSorting)
             sr.sortingOrder = Mathf.RoundToInt(-transform.position.y * sortingMultiplier);
     }
 
     void FixedUpdate()
     {
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        float finalSpeed = moveSpeed * globalSpeedMultiplier;
+        rb.MovePosition(rb.position + movement * finalSpeed * Time.fixedDeltaTime);
     }
 }

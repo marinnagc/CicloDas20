@@ -2,16 +2,11 @@ using UnityEngine;
 
 public class MedicineWarningFromTimer : MonoBehaviour
 {
-    [Header("Referências Gerais")]
-    public PlayerController playerController;
-    public TimerController timer;
-
     [Header("Alerta do Remédio (16h)")]
     public GameObject painelRemedio;
     public int horarioRemedio = 16;
     public float duracaoRemedio = 5f;
-    [Range(0.1f, 1f)]
-    public float slowMultiplier = 0.4f;
+    [Range(0.1f, 1f)] public float slowMultiplier = 0.4f;
     public int fimEfeitoLentidao = 18;
 
     [Header("Alerta do Toque de Recolher (20h)")]
@@ -19,20 +14,19 @@ public class MedicineWarningFromTimer : MonoBehaviour
     public int horarioRecolher = 20;
     public float duracaoRecolher = 5f;
 
-    // Variáveis internas - Remédio
-    private float originalSpeed;
+    // estado interno
     private bool effectActive = false;
     private bool remedioShown = false;
     private float remedioTimer = 0f;
-
-    // Variáveis internas - Recolher
     private bool recolherShown = false;
     private float recolherTimer = 0f;
 
+    private TimerController timer;
+
     void Start()
     {
-        if (playerController != null)
-            originalSpeed = playerController.moveSpeed;
+        // usa o Timer global
+        timer = TimerController.Instance;
 
         if (painelRemedio != null)
             painelRemedio.SetActive(false);
@@ -43,13 +37,16 @@ public class MedicineWarningFromTimer : MonoBehaviour
 
     void Update()
     {
-        if (timer == null) return;
+        // se por algum motivo ainda não tem Timer, tenta pegar de novo
+        if (timer == null)
+        {
+            timer = TimerController.Instance;
+            if (timer == null) return;
+        }
 
         int horaAtual = timer.GetHoraInteira();
 
-        // ========== REMÉDIO (16h) ==========
-
-        // Aplicar lentidão das 16h até antes das 18h
+        // ======= REMÉDIO 16h–18h =======
         if (horaAtual >= horarioRemedio && horaAtual < fimEfeitoLentidao)
         {
             if (!effectActive)
@@ -61,14 +58,13 @@ public class MedicineWarningFromTimer : MonoBehaviour
                 DesativarLentidao();
         }
 
-        // Mostrar aviso do remédio
+        // aviso do remédio
         if (!remedioShown && horaAtual == horarioRemedio)
         {
             MostrarAviso(painelRemedio, ref remedioTimer, duracaoRemedio, "Remédio");
             remedioShown = true;
         }
 
-        // Timer do painel remédio
         if (painelRemedio != null && painelRemedio.activeSelf)
         {
             remedioTimer -= Time.deltaTime;
@@ -79,16 +75,13 @@ public class MedicineWarningFromTimer : MonoBehaviour
             }
         }
 
-        // ========== TOQUE DE RECOLHER (20h) ==========
-
-        // Mostrar aviso do recolher
+        // ======= RECOLHER 20h =======
         if (!recolherShown && horaAtual == horarioRecolher)
         {
             MostrarAviso(painelRecolher, ref recolherTimer, duracaoRecolher, "Recolher");
             recolherShown = true;
         }
 
-        // Timer do painel recolher
         if (painelRecolher != null && painelRecolher.activeSelf)
         {
             recolherTimer -= Time.deltaTime;
@@ -99,10 +92,9 @@ public class MedicineWarningFromTimer : MonoBehaviour
             }
         }
 
-        // ========== RESET PARA PRÓXIMO DIA ==========
+        // reset flags pro próximo dia
         if (horaAtual < horarioRemedio)
             remedioShown = false;
-
         if (horaAtual < horarioRecolher)
             recolherShown = false;
     }
@@ -110,16 +102,14 @@ public class MedicineWarningFromTimer : MonoBehaviour
     private void AtivarLentidao()
     {
         effectActive = true;
-        if (playerController != null)
-            playerController.moveSpeed = originalSpeed * slowMultiplier;
-        Debug.Log("[Alertas] Lentidão ativada!");
+        PlayerController.globalSpeedMultiplier = slowMultiplier;
+        Debug.Log("[Alertas] Lentidão ativada! Multiplier = " + slowMultiplier);
     }
 
     private void DesativarLentidao()
     {
         effectActive = false;
-        if (playerController != null)
-            playerController.moveSpeed = originalSpeed;
+        PlayerController.globalSpeedMultiplier = 1f;
         Debug.Log("[Alertas] Lentidão desativada!");
     }
 
