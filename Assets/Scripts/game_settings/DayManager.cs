@@ -10,6 +10,8 @@ public class DayManager : MonoBehaviour
     [Header("Configurações")]
     [SerializeField] private string cenaQuarto = "Quarto"; // Nome da cena do quarto
     [SerializeField] private Vector3 posicaoSpawnQuarto = new Vector3(0, 0, 0); // Posição onde o player aparece no quarto
+    [SerializeField] private string cenaGameOver = "PerdeuGO"; // Nome da cena de Game Over
+    [SerializeField] private int diasParaGameOver = 10; // Número de dias até o Game Over
 
     [Header("UI - Tela de Transição")]
     [SerializeField] private GameObject painelTransicao; // Panel preto que cobre tudo
@@ -93,6 +95,25 @@ public class DayManager : MonoBehaviour
 
         // Incrementa o dia
         diaAtual++;
+
+        // Verifica se chegou no limite de dias (Game Over)
+        if (diaAtual > diasParaGameOver)
+        {
+            Debug.Log("Chegou ao dia " + diaAtual + " - Carregando Game Over");
+
+            // Salva o progresso
+            PlayerPrefs.SetInt("DiaAtual", diaAtual);
+            PlayerPrefs.Save();
+
+            // Pequeno delay antes de carregar o Game Over
+            yield return new WaitForSecondsRealtime(0.5f);
+
+            // Carrega a cena de Game Over
+            SceneManager.LoadScene(cenaGameOver);
+
+            emTransicao = false;
+            yield break; // Sai da coroutine
+        }
 
         // Salva o progresso
         PlayerPrefs.SetInt("DiaAtual", diaAtual);
