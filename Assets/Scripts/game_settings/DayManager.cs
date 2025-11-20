@@ -14,6 +14,7 @@ public class DayManager : MonoBehaviour
     [Header("UI - Tela de Transição")]
     [SerializeField] private GameObject painelTransicao; // Panel preto que cobre tudo
     [SerializeField] private TextMeshProUGUI textoDia; // Texto que mostra "Day X"
+    [SerializeField] private TextMeshProUGUI textoMensagem; // Texto adicional (ex: "você foi pego fora do quarto")
     [SerializeField] private CanvasGroup canvasGroupTransicao; // Para fade in/out
 
     [Header("Tempos de Animação")]
@@ -24,6 +25,7 @@ public class DayManager : MonoBehaviour
     // Variáveis internas
     private int diaAtual = 1;
     private bool emTransicao = false;
+    private bool proximoDiaComecaAs8 = false; // Flag para punição
 
     void Awake()
     {
@@ -63,16 +65,29 @@ public class DayManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Chamado pelo TimeController quando chega 22h
+    /// Chamado pelo TimerController quando chega 22h
     /// </summary>
     public void IniciarTransicaoDia()
     {
         if (emTransicao) return;
 
-        StartCoroutine(TransicaoDiaCoroutine());
+        StartCoroutine(TransicaoDiaCoroutine(false)); // false = transição normal
     }
 
-    private IEnumerator TransicaoDiaCoroutine()
+    /// <summary>
+    /// Chamado quando o segurança pega o player
+    /// </summary>
+    public void IniciarTransicaoDiaPorCaptura()
+    {
+        if (emTransicao) return;
+
+        // Define que o próximo dia começa às 8h como punição
+        proximoDiaComecaAs8 = true;
+
+        StartCoroutine(TransicaoDiaCoroutine(true)); // true = player foi capturado
+    }
+
+    private IEnumerator TransicaoDiaCoroutine(bool foiCapturado)
     {
         emTransicao = true;
 
@@ -97,6 +112,21 @@ public class DayManager : MonoBehaviour
         {
             textoDia.text = "Day " + diaAtual;
             textoDia.alpha = 0f; // Começa invisível
+        }
+
+        // Atualiza a mensagem adicional (se foi capturado)
+        if (textoMensagem != null)
+        {
+            if (foiCapturado)
+            {
+                textoMensagem.text = "Você foi pego fora do quarto e perderá 2 horas do seu dia";
+                textoMensagem.alpha = 0f; // Começa invisível
+            }
+            else
+            {
+                textoMensagem.text = ""; // Sem mensagem na transição normal
+                textoMensagem.alpha = 0f;
+            }
         }
 
         // === FADE IN (tela fica preta) ===
@@ -126,6 +156,20 @@ public class DayManager : MonoBehaviour
             textoDia.alpha = 1f;
         }
 
+        // === MOSTRA A MENSAGEM ADICIONAL (se foi capturado) ===
+        if (foiCapturado && textoMensagem != null && !string.IsNullOrEmpty(textoMensagem.text))
+        {
+            // Fade in da mensagem
+            float t = 0f;
+            while (t < 0.5f)
+            {
+                t += Time.unscaledDeltaTime;
+                textoMensagem.alpha = Mathf.Lerp(0f, 1f, t / 0.5f);
+                yield return null;
+            }
+            textoMensagem.alpha = 1f;
+        }
+
         // Espera mostrando o dia
         yield return new WaitForSecondsRealtime(tempoMostrarDia);
 
@@ -144,10 +188,14 @@ public class DayManager : MonoBehaviour
         // Reposiciona o player
         ReposicionarPlayer();
 
-        // Reseta o TimerController para 6h
+        // Reseta o TimerController para 6h ou 8h (se foi pego)
         if (TimerController.Instance != null)
         {
-            TimerController.Instance.ResetarDia();
+            int horaInicio = proximoDiaComecaAs8 ? 8 : 6;
+            TimerController.Instance.ResetarDia(horaInicio);
+
+            // Reseta a flag após usar
+            proximoDiaComecaAs8 = false;
         }
 
         // === FADE OUT DO TEXTO ===
@@ -158,9 +206,21 @@ public class DayManager : MonoBehaviour
             {
                 t += Time.unscaledDeltaTime;
                 textoDia.alpha = Mathf.Lerp(1f, 0f, t / 0.5f);
+
+                // Faz fade out da mensagem junto
+                if (foiCapturado && textoMensagem != null)
+                {
+                    textoMensagem.alpha = Mathf.Lerp(1f, 0f, t / 0.5f);
+                }
+
                 yield return null;
             }
             textoDia.alpha = 0f;
+
+            if (foiCapturado && textoMensagem != null)
+            {
+                textoMensagem.alpha = 0f;
+            }
         }
 
         // === FADE OUT (tela volta ao normal) ===

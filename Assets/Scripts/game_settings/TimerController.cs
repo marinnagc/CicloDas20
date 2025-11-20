@@ -98,16 +98,27 @@ public class TimerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Reseta o dia para 6h - chamado pelo DayManager após a transição
+    /// Reseta o dia - chamado pelo DayManager após a transição
     /// </summary>
-    public void ResetarDia()
+    /// <param name="novaHoraInicial">Hora para começar (padrão: 6h, punição: 8h)</param>
+    public void ResetarDia(int novaHoraInicial = -1)
     {
-        tempoDecorrido = 0f;
-        horaAtual = horaInicial;
+        // Se não foi especificada uma hora, usa a hora inicial padrão
+        if (novaHoraInicial == -1)
+        {
+            novaHoraInicial = horaInicial;
+        }
+
+        // Calcula quanto tempo já passou baseado na nova hora inicial
+        float horasPassadas = novaHoraInicial - horaInicial; // Ex: 8 - 6 = 2 horas
+        float porcentagemPassada = horasPassadas / horasTotais; // Ex: 2 / 16 = 0.125
+
+        tempoDecorrido = porcentagemPassada * duracaoEmSegundos;
+        horaAtual = novaHoraInicial;
         tempoAcabou = false;
         AtualizarUI();
 
-        Debug.Log("TimerController resetado para " + horaInicial + ":00");
+        Debug.Log("TimerController resetado para " + novaHoraInicial + ":00");
     }
 
     // === MÉTODOS PÚBLICOS ===
