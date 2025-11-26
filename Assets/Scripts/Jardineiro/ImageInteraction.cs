@@ -1,15 +1,12 @@
 ﻿using UnityEngine;
 
-public class ImageInteraction : MonoBehaviour
+public class ImageInteraction : MonoBehaviour, IInteractable
 {
     [Header("UI a ser exibida (a imagem do bilhete)")]
     public GameObject dialogPanel;
 
-    [Header("Tecla de interação")]
-    public KeyCode interactionKey = KeyCode.E;
-
-    private bool playerInside = false;
     private bool dialogOpen = false;
+    private bool playerInside = false;
 
     void Start()
     {
@@ -19,16 +16,40 @@ public class ImageInteraction : MonoBehaviour
 
     void Update()
     {
-        if (!playerInside) return;
-
-        if (Input.GetKeyDown(interactionKey))
+        // 👉 Se imagem aberta, e o jogador clicar/tocar em qualquer lugar da tela, fecha
+        if (dialogOpen && Input.GetMouseButtonDown(0))
         {
-            if (!dialogOpen)
-                Abrir();
-            else
-                Fechar();
+            Fechar();
         }
     }
+
+    // ==================================================================
+    //           MÉTODOS OBRIGATÓRIOS DO IInteractable
+    // ==================================================================
+
+    public void Interact(GameObject interactor)
+    {
+        // Se ainda não abriu → só abre se o player estiver perto
+        if (!dialogOpen)
+        {
+            if (!playerInside) return;
+            Abrir();
+        }
+        else
+        {
+            // Se já está aberto → fechar SEMPRE, mesmo se playerInside for false
+            Fechar();
+        }
+    }
+
+    public string GetPrompt()
+    {
+        return "Ler bilhete";   // texto opcional para UI de prompt
+    }
+
+    // ==================================================================
+    //               Funções de abrir/fechar o painel
+    // ==================================================================
 
     void Abrir()
     {
@@ -36,16 +57,6 @@ public class ImageInteraction : MonoBehaviour
 
         if (dialogPanel != null)
             dialogPanel.SetActive(true);
-
-        // OPCIONAL → congela o player enquanto lê
-        /*
-        var player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            var pc = player.GetComponent<PlayerController>();
-            if (pc != null) pc.enabled = false;
-        }
-        */
     }
 
     void Fechar()
@@ -54,17 +65,11 @@ public class ImageInteraction : MonoBehaviour
 
         if (dialogPanel != null)
             dialogPanel.SetActive(false);
-
-        // OPCIONAL → libera movimento
-        /*
-        var player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            var pc = player.GetComponent<PlayerController>();
-            if (pc != null) pc.enabled = true;
-        }
-        */
     }
+
+    // ==================================================================
+    //                  Trigger para detectar proximidade
+    // ==================================================================
 
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -77,7 +82,10 @@ public class ImageInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInside = false;
-            Fechar();
+
+            // Se sair de perto e estiver aberto, fecha
+            if (dialogOpen)
+                Fechar();
         }
     }
 }

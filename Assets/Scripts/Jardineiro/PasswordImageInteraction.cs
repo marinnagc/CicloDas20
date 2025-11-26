@@ -1,23 +1,23 @@
-﻿using UnityEngine;
-using TMPro;   // para TMP_InputField e TextMeshProUGUI
+﻿using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class PasswordImageInteraction : MonoBehaviour
+public class PasswordImageInteraction : MonoBehaviour, IInteractable
 {
     [Header("UI do bilhete (imagem)")]
-    public GameObject dialogPanel;          // painel com o post-it
+    public GameObject dialogPanel;
 
     [Header("UI da senha")]
-    public GameObject passwordPanel;        // painel com input de senha
-    public TMP_InputField passwordInput;    // campo de texto da senha
-    public TextMeshProUGUI feedbackText;    // opcional: texto de erro ("senha errada")
+    public GameObject passwordPanel;
+    public TMP_InputField passwordInput;
+    public TextMeshProUGUI feedbackText;
 
     [Header("Configuração")]
     public string correctPassword = "1234";
-    public KeyCode interactionKey = KeyCode.E;
 
     private bool playerInside = false;
-    private bool dialogOpen = false;
-    private bool askingPassword = false;
+    private bool dialogOpen = false;       // bilhete aberto
+    private bool askingPassword = false;   // painel de senha aberto
 
     void Start()
     {
@@ -26,65 +26,160 @@ public class PasswordImageInteraction : MonoBehaviour
         if (feedbackText != null) feedbackText.text = "";
     }
 
+    // ============================================================
+    //         Detectar se clique está em UI *interativa*
+    // ============================================================
+    bool ClickIsOnRealUI()
+    {
+        // Não clicou em UI → beleza
+        if (!EventSystem.current.IsPointerOverGameObject())
+            return false;
+
+        // Coletar os objetos UI atingidos pelo clique
+        var pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+
+        var results = new System.Collections.Generic.List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        // Se clicou num TMP_InputField ou Button → NÃO FECHA
+        foreach (var r in results)
+        {
+            if (r.gameObject.GetComponent<UnityEngine.UI.Selectable>() != null)
+                return true; // clicou num UI "real" (input, botão, slider, etc)
+        }
+
+        return false; // clicou em UI "vazia" (painel) → pode fechar
+    }
+
+    // ============================================================
+    //                         UPDATE
+    // ============================================================
     void Update()
     {
-        if (!playerInside) return;
+        if (!dialogOpen && !askingPassword) return;
 
-        // Aperta E para iniciar a interação (abrir painel de senha)
-        if (Input.GetKeyDown(interactionKey))
+        if (Input.GetMouseButtonDown(0))
         {
-            // se nada estiver aberto, abre o painel de senha
-            if (!dialogOpen && !askingPassword)
-            {
-                OpenPasswordPanel();
-            }
-            // se já estiver com o bilhete aberto, E fecha
-            else if (dialogOpen)
-            {
+            // Se o clique foi em elemento interativo (input/botão) → não fechar
+            if (ClickIsOnRealUI())
+                return;
+
+            // Fechar o bilhete
+            if (dialogOpen)
                 CloseDialog();
-            }
+
+            // Fechar painel de senha
+            if (askingPassword)
+                ClosePasswordPanel();
         }
     }
 
+    // ============================================================
+    //         IInteractable – chamado pelo Player/E
+    // ============================================================
+    public void Interact(GameObject interactor)
+    {
+        // Se estiver digitando, NÃO fecha nem abre nada
+        if (IsTypingInInput())
+            return;
+
+        if (!playerInside) return;
+
+        // Nada aberto → abrir painel de senha
+        if (!askingPassword && !dialogOpen)
+        {
+            OpenPasswordPanel();
+        }
+        // Bilhete aberto → fechar com E
+        else if (dialogOpen)
+        {
+            CloseDialog();
+        }
+        // Senha aberta → fechar com E
+        else if (askingPassword)
+        {
+            ClosePasswordPanel();
+        }
+    }
+
+    // Bloqueia o E enquanto escrever no InputField
+    bool IsTypingInInput()
+    {
+        return EventSystem.current != null &&
+               EventSystem.current.currentSelectedGameObject != null &&
+               EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>() != null;
+    }
+
+    public string GetPrompt()
+    {
+        if (!askingPassword && !dialogOpen)
+            return "Inserir senha";
+        if (dialogOpen)
+            return "Fechar bilhete";
+        if (askingPassword)
+            return "Fechar senha";
+        return "";
+    }
+
+    // ============================================================
+    //                   Abrir / Fechar paineis
+    // ============================================================
     void OpenPasswordPanel()
     {
         askingPassword = true;
-        if (passwordPanel != null) passwordPanel.SetActive(true);
+
+        passwordPanel?.SetActive(true);
         if (passwordInput != null) passwordInput.text = "";
         if (feedbackText != null) feedbackText.text = "";
     }
 
-    public void ConfirmPassword()
+    void ClosePasswordPanel()
     {
-        if (passwordInput == null) return;
+        askingPassword = false;
 
-        string entered = passwordInput.text;
+        passwordPanel?.SetActive(false);
+        if (feedbackText != null) feedbackText.text = "";
+    }
 
-        if (entered == correctPassword)
-        {
-            // senha correta → fecha painel de senha, abre bilhete
-            if (passwordPanel != null) passwordPanel.SetActive(false);
-            askingPassword = false;
-
-            if (dialogPanel != null) dialogPanel.SetActive(true);
-            dialogOpen = true;
-        }
-        else
-        {
-            // senha errada
-            if (feedbackText != null)
-                feedbackText.text = "Senha incorreta!";
-            else
-                Debug.Log("Senha incorreta!");
-        }
+    void OpenDialog()
+    {
+        dialogOpen = true;
+        dialogPanel?.SetActive(true);
     }
 
     void CloseDialog()
     {
         dialogOpen = false;
-        if (dialogPanel != null) dialogPanel.SetActive(false);
+        dialogPanel?.SetActive(false);
     }
 
+    // ============================================================
+    //                Confirmar senha
+    // ============================================================
+    public void ConfirmPassword()
+    {
+        if (passwordInput == null) return;
+
+        string entered = passwordInput.text.Trim();
+
+        if (entered == correctPassword)
+        {
+            ClosePasswordPanel();
+            OpenDialog();
+        }
+        else
+        {
+            if (feedbackText != null)
+                feedbackText.text = "Senha incorreta!";
+        }
+    }
+
+    // ============================================================
+    //                   Trigger de proximidade
+    // ============================================================
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
@@ -96,11 +191,11 @@ public class PasswordImageInteraction : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         playerInside = false;
-        askingPassword = false;
         dialogOpen = false;
+        askingPassword = false;
 
-        if (passwordPanel != null) passwordPanel.SetActive(false);
-        if (dialogPanel != null) dialogPanel.SetActive(false);
+        passwordPanel?.SetActive(false);
+        dialogPanel?.SetActive(false);
         if (feedbackText != null) feedbackText.text = "";
     }
 }

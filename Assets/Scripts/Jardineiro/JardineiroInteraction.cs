@@ -1,20 +1,17 @@
-using UnityEngine;
-using TMPro; // se for usar TextMeshPro
+ï»¿using UnityEngine;
+using TMPro;
 
-public class JardineiroInteraction : MonoBehaviour
+public class JardineiroInteraction : MonoBehaviour, IInteractable
 {
-    [Header("UI de Diálogo")]
-    public GameObject dialogPanel;         // painel inteiro
-    public TextMeshProUGUI dialogText;     // texto dentro do painel
+    [Header("UI de DiÃ¡logo")]
+    public GameObject dialogPanel;
+    public TextMeshProUGUI dialogText;
 
     [TextArea(2, 5)]
-    public string mensagem = "Você não deveria estar aqui tão tarde... O jardim guarda segredos.";
+    public string mensagem = "VocÃª nÃ£o deveria estar aqui tÃ£o tarde... O jardim guarda segredos.";
 
-    [Header("Tecla de interação")]
-    public KeyCode interactionKey = KeyCode.E;
-
-    private bool playerInside = false;
     private bool dialogOpen = false;
+    private bool playerInside = false;
 
     void Start()
     {
@@ -24,15 +21,32 @@ public class JardineiroInteraction : MonoBehaviour
 
     void Update()
     {
-        if (!playerInside) return;
-
-        if (Input.GetKeyDown(interactionKey))
+        // ðŸ‘‰ Se o bilhete estiver aberto e o jogador clicar em QUALQUER lugar, fecha
+        if (dialogOpen && Input.GetMouseButtonDown(0))
         {
-            if (!dialogOpen)
-                AbrirDialogo();
-            else
-                FecharDialogo();
+            FecharDialogo();
         }
+    }
+
+    // Chamado pelo PlayerInteraction (botÃ£o E ou tecla E)
+    public void Interact(GameObject interactor)
+    {
+        // ABRIR sÃ³ se player estiver perto
+        if (!dialogOpen)
+        {
+            if (!playerInside) return;
+            AbrirDialogo();
+        }
+        // FECHAR sempre (mesmo se playerInside for false)
+        else
+        {
+            FecharDialogo();
+        }
+    }
+
+    public string GetPrompt()
+    {
+        return "Ler bilhete";   // ou "Falar", etc.
     }
 
     void AbrirDialogo()
@@ -44,9 +58,6 @@ public class JardineiroInteraction : MonoBehaviour
 
         if (dialogText != null)
             dialogText.text = mensagem;
-
-        // Se quiser travar o movimento do player enquanto fala,
-        // você pode pegar o PlayerController e desabilitar aqui.
     }
 
     void FecharDialogo()
@@ -55,8 +66,6 @@ public class JardineiroInteraction : MonoBehaviour
 
         if (dialogPanel != null)
             dialogPanel.SetActive(false);
-
-        // Aqui você pode reabilitar o movimento do player, se tiver travado.
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -64,8 +73,6 @@ public class JardineiroInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInside = true;
-            // Aqui você pode mostrar uma mensagem "Aperte E para falar"
-            // em outro pequeno texto na tela, se quiser.
         }
     }
 

@@ -1,19 +1,16 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using TMPro;
 
-public class QuadroAvisosInteraction : MonoBehaviour
+public class QuadroAvisosInteraction : MonoBehaviour, IInteractable
 {
     [Header("UI do Quadro")]
     public GameObject avisosPanel;
     public TextMeshProUGUI avisosText;
 
     [TextArea(3, 8)]
-    public string mensagemAvisos = "AVISOS DO DIA:\n\n• Remédio às 16h\n• Toque de recolher às 20h\n• Não saia do quarto após o horário";
+    public string mensagemAvisos = "AVISOS DO DIA:\n\nâ€¢ RemÃ©dio Ã s 16h\nâ€¢ Toque de recolher Ã s 20h\nâ€¢ NÃ£o saia do quarto apÃ³s o horÃ¡rio";
 
-    [Header("Tecla de interação")]
-    public KeyCode interactionKey = KeyCode.E;
-
-    [Header("Dica de Interação (opcional)")]
+    [Header("Dica de InteraÃ§Ã£o (opcional)")]
     public GameObject dicaInteracao; // texto "Aperte E para ler"
 
     private bool playerInside = false;
@@ -30,16 +27,39 @@ public class QuadroAvisosInteraction : MonoBehaviour
 
     void Update()
     {
-        if (!playerInside) return;
-
-        if (Input.GetKeyDown(interactionKey))
+        // ðŸ‘‰ Fecha ao tocar em qualquer lugar da tela
+        if (panelOpen && Input.GetMouseButtonDown(0))
         {
-            if (!panelOpen)
-                AbrirAvisos();
-            else
-                FecharAvisos();
+            FecharAvisos();
         }
     }
+
+    // ================================================================
+    //                MÃ‰TODO IInteractable â€“ chamado pelo Player
+    // ================================================================
+    public void Interact(GameObject interactor)
+    {
+        // Para abrir â†’ precisa estar perto
+        if (!panelOpen)
+        {
+            if (!playerInside) return;
+            AbrirAvisos();
+        }
+        else
+        {
+            // Para fechar â†’ pode fechar sempre
+            FecharAvisos();
+        }
+    }
+
+    public string GetPrompt()
+    {
+        return "Ler avisos";
+    }
+
+    // ================================================================
+    //                     ABRIR E FECHAR O PAINEL
+    // ================================================================
 
     void AbrirAvisos()
     {
@@ -69,6 +89,10 @@ public class QuadroAvisosInteraction : MonoBehaviour
 
         Debug.Log("[QuadroAvisos] Painel fechado");
     }
+
+    // ================================================================
+    //                     DETECÃ‡ÃƒO DE PROXIMIDADE
+    // ================================================================
 
     void OnTriggerEnter2D(Collider2D other)
     {
