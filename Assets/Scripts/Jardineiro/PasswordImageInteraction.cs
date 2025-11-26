@@ -26,6 +26,19 @@ public class PasswordImageInteraction : MonoBehaviour, IInteractable
         if (feedbackText != null) feedbackText.text = "";
     }
 
+    // ======================================================================
+    //           BOTÕES CLOSE – chamados via OnClick no botão
+    // ======================================================================
+    public void ClosePasswordByButton()
+    {
+        ClosePasswordPanel();
+    }
+
+    public void CloseDialogByButton()
+    {
+        CloseDialog();
+    }
+
     // ============================================================
     //         Detectar se clique está em UI *interativa*
     // ============================================================
@@ -67,13 +80,13 @@ public class PasswordImageInteraction : MonoBehaviour, IInteractable
             if (ClickIsOnRealUI())
                 return;
 
-            // Fechar o bilhete
+            // 👉 Agora: clicar fora só fecha o bilhete
             if (dialogOpen)
                 CloseDialog();
 
-            // Fechar painel de senha
-            if (askingPassword)
-                ClosePasswordPanel();
+            // ❌ NÃO fecha mais painel de senha ao clicar fora
+            // if (askingPassword)
+            //     ClosePasswordPanel();
         }
     }
 
@@ -98,10 +111,11 @@ public class PasswordImageInteraction : MonoBehaviour, IInteractable
         {
             CloseDialog();
         }
-        // Senha aberta → fechar com E
+        // Senha aberta → AGORA NÃO FECHA MAIS COM E
         else if (askingPassword)
         {
-            ClosePasswordPanel();
+            // Não chamar ClosePasswordPanel();
+            // painel de senha só fecha pelo botão ClosePasswordByButton()
         }
     }
 

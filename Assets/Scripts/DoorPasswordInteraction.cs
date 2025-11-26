@@ -25,7 +25,16 @@ public class DoorPasswordInteraction : MonoBehaviour, IInteractable
     }
 
     // =====================================================================
+    //   BOTÃO CLOSE – para ser chamado no OnClick do botão de fechar
+    // =====================================================================
+    public void ClosePanelByButton()
+    {
+        ClosePanel();
+    }
+
+    // =====================================================================
     //            Detectar se clique foi em UI "real" (input/botão)
+    //            (fica aqui se precisar no futuro, mas não fecha mais)
     // =====================================================================
     bool ClickIsOnRealUI()
     {
@@ -56,15 +65,8 @@ public class DoorPasswordInteraction : MonoBehaviour, IInteractable
     {
         if (!panelOpen) return;
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            // Se clicou em InputField, Button, Slider etc → NÃO FECHA
-            if (ClickIsOnRealUI())
-                return;
-
-            // Clicou fora → fecha
-            ClosePanel();
-        }
+        // ➜ NÃO fecha mais clicando fora
+        // if (Input.GetMouseButtonDown(0)) { ... }
     }
 
     // =====================================================================
@@ -89,15 +91,15 @@ public class DoorPasswordInteraction : MonoBehaviour, IInteractable
         if (IsTypingInInput())
             return;
 
-        // Abrir
+        // Abrir painel se estiver fechado
         if (!panelOpen)
         {
             OpenPanel();
         }
-        // Fechar com E
+        // Painel aberto → agora NÃO fecha mais com E
         else
         {
-            ClosePanel();
+            // não chamar ClosePanel();
         }
     }
 

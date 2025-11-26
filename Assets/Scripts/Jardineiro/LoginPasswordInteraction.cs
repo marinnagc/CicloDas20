@@ -1,25 +1,25 @@
 ﻿using UnityEngine;
-using TMPro;                    // para TMP_InputField e TextMeshProUGUI
-using UnityEngine.EventSystems; // para detectar clique em UI
+using TMPro;
+using UnityEngine.EventSystems;
 
 public class LoginPasswordInteraction : MonoBehaviour, IInteractable
 {
     [Header("UI do bilhete (imagem que aparece DEPOIS do login)")]
-    public GameObject dialogPanel;          // painel com o post-it / info
+    public GameObject dialogPanel;
 
     [Header("UI de Login + Senha")]
-    public GameObject loginPanel;           // painel com usuario + senha
-    public TMP_InputField userInput;        // campo de usuário
-    public TMP_InputField passwordInput;    // campo de senha
-    public TextMeshProUGUI feedbackText;    // texto de erro ("login ou senha incorretos")
+    public GameObject loginPanel;
+    public TMP_InputField userInput;
+    public TMP_InputField passwordInput;
+    public TextMeshProUGUI feedbackText;
 
     [Header("Credenciais corretas")]
     public string correctUser = "beatriz";
     public string correctPassword = "0416";
 
     private bool playerInside = false;
-    private bool dialogOpen = false;   // bilhete pós-login aberto
-    private bool askingLogin = false;  // painel de login aberto
+    private bool dialogOpen = false;     // bilhete pós-login
+    private bool askingLogin = false;    // painel de login
 
     void Start()
     {
@@ -27,12 +27,28 @@ public class LoginPasswordInteraction : MonoBehaviour, IInteractable
         if (loginPanel != null) loginPanel.SetActive(false);
         if (feedbackText != null) feedbackText.text = "";
     }
+
+    // ======================================================================
+    //              BOTÕES CLOSE — chamados pelo OnClick do botão
+    // ======================================================================
+    public void CloseLoginByButton()
+    {
+        CloseLoginPanel();
+    }
+
+    public void CloseDialogByButton()
+    {
+        CloseDialog();
+    }
+
+    // ======================================================================
+    //          Função auxiliar para checar cliques em UI real
+    // ======================================================================
     bool ClickIsOnRealUI()
     {
         if (!EventSystem.current.IsPointerOverGameObject())
             return false;
 
-        // Pega o objeto UI clicado
         var pointerData = new PointerEventData(EventSystem.current)
         {
             position = Input.mousePosition
@@ -41,35 +57,37 @@ public class LoginPasswordInteraction : MonoBehaviour, IInteractable
         var results = new System.Collections.Generic.List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
-        // Se qualquer UI for Selectable, NÃO FECHA
         foreach (var r in results)
         {
             if (r.gameObject.GetComponent<UnityEngine.UI.Selectable>() != null)
                 return true;
         }
 
-        // Clicou em UI que não é Selectable (tipo um painel)? Pode FECHAR
         return false;
     }
 
+    // ======================================================================
+    //                   UPDATE — clique fora fecha só o bilhete
+    // ======================================================================
     void Update()
     {
-        if (!dialogOpen && !askingLogin) return;
+        if (!dialogOpen && !askingLogin)
+            return;
 
         if (Input.GetMouseButtonDown(0))
         {
-            // Se clicou em input, botão, etc → NÃO FECHA
+            // se clicou em botão/input → não fecha nada
             if (ClickIsOnRealUI())
                 return;
 
-            // Qualquer clique FORA desses elementos → fecha
+            // 👉 Apenas o bilhete pode ser fechado clicando fora
             if (dialogOpen)
                 CloseDialog();
 
-            if (askingLogin)
-                CloseLoginPanel();
+            // ❌ NÃO fechar mais login clicando fora
         }
     }
+
     bool IsTypingInInput()
     {
         return EventSystem.current != null &&
@@ -77,32 +95,34 @@ public class LoginPasswordInteraction : MonoBehaviour, IInteractable
                EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>() != null;
     }
 
-
-    // ============================================================
-    //           IInteractable – chamado pelo Player/E
-    // ============================================================
+    // ======================================================================
+    //                        INTERAÇÃO COM O PLAYER (tecla E)
+    // ======================================================================
     public void Interact(GameObject interactor)
     {
-        // Se estiver digitando → NÃO FAZ NADA
         if (IsTypingInInput())
             return;
 
-        if (!playerInside) return;
+        if (!playerInside)
+            return;
 
+        // E abre login se nada estiver aberto
         if (!askingLogin && !dialogOpen)
         {
             OpenLoginPanel();
         }
+        // E fecha bilhete
         else if (dialogOpen)
         {
             CloseDialog();
         }
+        // ❌ E NÃO fecha mais o login automaticamente
         else if (askingLogin)
         {
-            CloseLoginPanel();
+            // NÃO chamar CloseLoginPanel();
+            // agora login só fecha por botão CloseLoginByButton()
         }
     }
-
 
     public string GetPrompt()
     {
@@ -115,9 +135,9 @@ public class LoginPasswordInteraction : MonoBehaviour, IInteractable
         return "";
     }
 
-    // ============================================================
-    //                   Abrir / Fechar paineis
-    // ============================================================
+    // ======================================================================
+    //                   ABRIR / FECHAR PAINÉIS
+    // ======================================================================
     void OpenLoginPanel()
     {
         askingLogin = true;
@@ -154,9 +174,9 @@ public class LoginPasswordInteraction : MonoBehaviour, IInteractable
         if (dialogPanel != null) dialogPanel.SetActive(false);
     }
 
-    // ============================================================
-    //                 Botão de confirmar login
-    // ============================================================
+    // ======================================================================
+    //                   BOTÃO CONFIRMAR LOGIN
+    // ======================================================================
     public void ConfirmLogin()
     {
         if (userInput == null || passwordInput == null)
@@ -168,12 +188,8 @@ public class LoginPasswordInteraction : MonoBehaviour, IInteractable
         string enteredUser = userInput.text.Trim();
         string enteredPass = passwordInput.text.Trim();
 
-        Debug.Log($"[Login] User digitado: '{enteredUser}', Senha digitada: '{enteredPass}'");
-
         if (enteredUser == correctUser && enteredPass == correctPassword)
         {
-            Debug.Log("[Login] Login e senha CORRETOS!");
-
             CloseLoginPanel();
             OpenDialog();
 
@@ -182,15 +198,14 @@ public class LoginPasswordInteraction : MonoBehaviour, IInteractable
         }
         else
         {
-            Debug.Log("[Login] Login ou senha INCORRETOS!");
             if (feedbackText != null)
                 feedbackText.text = "Login ou senha incorretos!";
         }
     }
 
-    // ============================================================
-    //                Trigger de proximidade
-    // ============================================================
+    // ======================================================================
+    //                   TRIGGER DO PLAYER
+    // ======================================================================
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
