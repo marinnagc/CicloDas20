@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AiAgente : MonoBehaviour
 {
@@ -25,6 +26,10 @@ public class AiAgente : MonoBehaviour
     [SerializeField] private int horaIniciarRonda = 20;
     [SerializeField] private int horaFimRonda = 22;
 
+    [Header("Captura")]
+    [SerializeField] private float captureDistance = 0.6f;   // distância para "pegou"
+    private bool hasCaughtThisNight = false;                 // evita capturar várias vezes
+
     // Variáveis privadas
     private enum State { Idle, Patrolling, Chasing, Returning }
     private State state = State.Patrolling;
@@ -43,6 +48,7 @@ public class AiAgente : MonoBehaviour
     {
         return player;
     }
+
     void Awake()
     {
         rb2d = GetComponent<Rigidbody2D>();
@@ -216,6 +222,13 @@ public class AiAgente : MonoBehaviour
         // Perseguir usando X e Y do player (Y deixa de ser fixo)
         Vector3 playerTarget = new Vector3(player.position.x, player.position.y, 0f);
         MoveTowardsTarget(playerTarget, chaseSpeed);
+
+        // 🔥 Verifica se "pegou" o player (encostou) durante a perseguição
+        float dist = Vector2.Distance(transform.position, player.position);
+        if (dist <= captureDistance)
+        {
+            TryCatchPlayer();
+        }
     }
 
     void StartReturningToLastPatrol()
@@ -285,16 +298,14 @@ public class AiAgente : MonoBehaviour
 
         Debug.Log($"[SecurityGuard] Distância até player: {distanceToPlayer:F2} | Range: {visionRange}");
 
-        // Verifica distância
+        // 1) Verifica distância máxima de visão
         if (distanceToPlayer > visionRange)
         {
             Debug.Log("[SecurityGuard] Player fora do alcance!");
             return false;
         }
 
-        // CORREÇÃO: Usa a direção baseada no localScale.x (direção do sprite)
-        // Se localScale.x > 0 -> olhando para direita (1, 0, 0)
-        // Se localScale.x < 0 -> olhando para esquerda (-1, 0, 0)
+        // 2) Direção baseada no localScale.x (direita ou esquerda)
         Vector3 forward = transform.localScale.x > 0 ? Vector3.right : Vector3.left;
         Debug.Log($"[SecurityGuard] Forward: {forward} | LocalScale.x: {transform.localScale.x}");
 
@@ -307,8 +318,13 @@ public class AiAgente : MonoBehaviour
             return false;
         }
 
-        // Verifica obstáculos
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer.normalized, distanceToPlayer, obstacleLayer);
+        // 3) Verifica obstáculos entre guarda e player
+        RaycastHit2D hit = Physics2D.Raycast(
+            transform.position,
+            directionToPlayer.normalized,
+            distanceToPlayer,
+            obstacleLayer
+        );
 
         if (hit.collider != null)
         {
@@ -326,8 +342,29 @@ public class AiAgente : MonoBehaviour
         }
 
         Debug.Log("[SecurityGuard] ✓ PLAYER DETECTADO!");
+
+        // 🔥 4) Se estiver na ronda e praticamente colado no player → CAPTURA
+        if (TimerController.Instance != null)
+        {
+            int hora = TimerController.Instance.GetHoraInteira();
+
+            // Apenas das 20h às 22h
+            if (hora >= horaIniciarRonda && hora < horaFimRonda)
+            {
+                // Aqui entra a regra que você pediu:
+                // se distância ~ 0 OU ângulo ~ 0, considera que pegou
+                if (distanceToPlayer <= 0.05f || angle <= 1f)
+                {
+                    Debug.Log($"[SecurityGuard] Dist {distanceToPlayer:F3} | Ângulo {angle:F2}° → CAPTURAR PLAYER");
+                    TryCatchPlayer();
+                }
+            }
+        }
+
         return true;
     }
+
+
     void UpdateAnimator()
     {
         if (animator == null) return;
@@ -359,6 +396,39 @@ public class AiAgente : MonoBehaviour
     public bool IsChasing() { return isChasing; }
     public float GetVisionRange() { return visionRange; }
     public float GetVisionAngle() { return visionAngle; }
+
+    // 🔥 Aqui é onde realmente "pega" o player e manda pro próximo dia
+    void TryCatchPlayer()
+    {
+        if (hasCaughtThisNight) return;
+
+        // Verifica horário — só entre 20h e < 22h
+        if (TimerController.Instance != null)
+        {
+            int hora = TimerController.Instance.GetHoraInteira();
+
+            if (hora < horaIniciarRonda || hora >= horaFimRonda)
+            {
+                Debug.Log("[SecurityGuard] Tentou capturar fora do horário. Ignorando.");
+                return;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[SecurityGuard] TimerController == null ao capturar!");
+            return;
+        }
+
+        hasCaughtThisNight = true;
+
+        Debug.Log("[SecurityGuard] PLAYER CAPTURADO ENTRE 20h E 22h → GAME OVER!");
+
+        // 🔥 Vai direto para a tela de derrota
+        SceneManager.LoadScene("PerdeuGO");
+    }
+
+
+
 
     // Visualização no Editor
     void OnDrawGizmosSelected()
