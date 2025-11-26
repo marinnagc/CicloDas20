@@ -35,11 +35,27 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
-        movement = movement.normalized;
+        // --------- INPUT DO TECLADO ----------
+        float inputX = Input.GetAxisRaw("Horizontal");
+        float inputY = Input.GetAxisRaw("Vertical");
+
+        // --------- INPUT DOS BOTÕES MOBILE ----------
+        if (MobileInput.Instance != null)
+        {
+            inputX += MobileInput.Instance.Horizontal;
+            inputY += MobileInput.Instance.Vertical;
+        }
+
+        // monta o vetor de movimento
+        movement = new Vector2(inputX, inputY);
+
+        // normaliza pra não correr mais rápido na diagonal
+        if (movement.sqrMagnitude > 1f)
+            movement = movement.normalized;
 
         bool isMoving = movement.sqrMagnitude > 0.01f;
+
+        // --------- ANIMAÇÃO ----------
         if (anim != null)
         {
             if (!string.IsNullOrEmpty(paramMoving)) anim.SetBool(paramMoving, isMoving);
@@ -48,9 +64,11 @@ public class PlayerController : MonoBehaviour
             if (!string.IsNullOrEmpty(paramSpeed)) anim.SetFloat(paramSpeed, movement.sqrMagnitude);
         }
 
+        // flip horizontal
         if (movement.x < 0) sr.flipX = true;
         else if (movement.x > 0) sr.flipX = false;
 
+        // depth pelo Y
         if (useYSorting)
             sr.sortingOrder = Mathf.RoundToInt(-transform.position.y * sortingMultiplier);
     }

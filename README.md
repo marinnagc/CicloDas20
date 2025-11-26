@@ -1,5 +1,3 @@
-Pronto — atualizei a seção de **Créditos** incluindo os créditos pelos sprites para os links que você enviou e adicionei um link de preview para o arquivo que você subiu. Segue o texto completo (em Markdown) com as mudanças:
-
 ---
 
 # 🌙 Ciclo das 20
